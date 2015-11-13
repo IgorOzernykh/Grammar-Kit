@@ -76,6 +76,10 @@ public class RuleMethodsHelper {
     return myMethods.get(rule).first.get(name);
   }
 
+  public boolean containMethod(BnfRule rule) {
+    return myMethods.get(rule) != null;
+  }
+
   protected void calcMethods(BnfRule rule, Map<String, String> tokensReversed) {
     List<MethodInfo> result = ContainerUtil.newArrayList();
 

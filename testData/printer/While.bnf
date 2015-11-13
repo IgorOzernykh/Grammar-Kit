@@ -1,0 +1,104 @@
+{
+    parserClass="com.intellij.whileLang.parser.WhileParser"
+    extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+    psiClassPrefix="Psi"
+    psiImplClassSuffix="Impl"
+    psiPackage="com.intellij.whileLang.psi.impl"
+
+    elementTypeHolderClass="com.intellij.whileLang.psi.WhileTypes"
+    elementTypeClass="com.intellij.whileLang.WhileElementType"
+    tokenTypeClass="com.intellij.whileLang.WhileTokenType"
+
+    tokens=[
+      CRLF='regexp:(\r\n|\n)'
+      SEP=';' COMMA=','
+      WRITE="write"; READ="read"
+      WHILE="while"; DO="do"; OD="od"
+      IF="if"; FI="fi"; THEN="then"; ELSE="else"
+      PROC="proc"; ENDP="endp"
+
+      SKIP="skip"
+      number="regexp:\d+(\.\d*)?"
+
+      NOT="not";OR="or";AND="and";TRUE="true";FALSE="false"
+
+      assign='regexp:\:='
+      id='regexp:\p{Alpha}\w*'
+    ]
+
+    //name("*\_stmt")=statement
+    extends("(plus|mul)_expr")=binary_expr
+    extends("(and|or)_bexpr")=binary_bexpr
+    extends("(plus|mul)_op|rel")=ar_op
+
+    extends(".*_stmt")=stmt
+    extends(".*_bexpr")=bexpr
+    extends(".*_expr")=expr
+}
+
+whileFile   ::= COMMENT|proc_list stmt_list
+stmt_list   ::= stmt*
+proc_list   ::= procedure*
+stmt        ::= skip_stmt|assign_stmt|if_stmt|while_stmt|write_stmt|read_stmt
+skip_stmt   ::= SKIP SEP
+write_stmt  ::= WRITE '(' expr ')' SEP
+read_stmt   ::= READ '(' id ')' SEP
+assign_stmt ::= id ASSIGN expr SEP
+if_stmt     ::= IF '(' bexpr ')' THEN stmt_list (ELSE stmt_list)? FI {
+    methods=[
+        thenBranch="/stmt_list[0]"
+        elseBranch="/stmt_list[1]"
+    ]
+}
+while_stmt  ::= WHILE '(' bexpr ')' DO stmt_list OD
+procedure   ::= PROC id '(' param_list ')' stmt_list ENDP
+param_list  ::= ref_expr? (COMMA ref_expr)*
+{
+    methods=[
+      isList="/true"
+    ]
+}
+
+fake ar_op ::= plus_op|mul_op
+fake binary_expr ::= expr ar_op expr {
+    methods=[
+        left="/expr[0]"
+        right="/expr[1]"
+    ]
+}
+
+expr ::= factor plus_expr *
+left plus_expr ::= plus_op factor
+plus_op ::= '+'|'-'
+private factor ::= primary mul_expr *
+left mul_expr  ::= mul_op primary
+mul_op ::= '*'|'/'|'%'
+private primary ::= literal_expr | ref_expr | paren_expr
+paren_expr ::= '(' expr ')' {pin=1}
+ref_expr ::= id
+literal_expr ::= number
+
+fake bl_op ::= or|and
+fake binary_bexpr ::= bexpr bl_op bexpr {
+    methods=[
+        left="/bexpr[0]"
+        right="/bexpr[1]"
+    ]
+}
+
+bexpr ::= bfactor or_bexpr *
+left or_bexpr ::= OR bfactor
+private bfactor ::= bprimary and_bexpr *
+left and_bexpr ::= AND bprimary
+private bprimary ::= literal_bexpr | not_bexpr | paren_bexpr | rel_bexpr
+paren_bexpr ::= '(' bexpr ')' {pin=1}
+not_bexpr ::= NOT bexpr
+literal_bexpr ::= TRUE | FALSE
+rel_bexpr ::= expr rel expr {
+    methods=[
+        left="/expr[0]"
+        right="/expr[1]"
+    ]
+}
+rel ::= '<'|'<='|'='|'>='|'>'
