@@ -10,6 +10,10 @@
     elementTypeClass="com.intellij.whileLang.WhileElementType"
     tokenTypeClass="com.intellij.whileLang.WhileTokenType"
 
+    printerPackage="com.intellij.whileLang"
+    factoryPackage="com.intellij.whileLang"
+    fileExtension="l"
+
     tokens=[
       CRLF='regexp:(\r\n|\n)'
       SEP=';' COMMA=','
