@@ -105,6 +105,8 @@
         <keyboard-shortcut keymap="$default" first-keystroke="control shift G"/>
       </action>
       <separator/>
+      <action id="grammar.GeneratePrinter" class="org.intellij.grammar.actions.BnfGeneratePrinterAction" text="Generate Printer Code" />
+      <separator/>
       <action id="grammar.LivePreview" class="org.intellij.grammar.actions.LivePreviewAction" text="Live Preview">
         <keyboard-shortcut keymap="$default" first-keystroke="control alt P"/>
       </action>

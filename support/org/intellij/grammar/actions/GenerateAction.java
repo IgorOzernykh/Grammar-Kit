@@ -79,7 +79,7 @@ public class GenerateAction extends AnAction implements DumbAware {
     e.getPresentation().setVisible(enabled);
   }
 
-  private static List<BnfFile> getFiles(AnActionEvent e) {
+  static List<BnfFile> getFiles(AnActionEvent e) {
     Project project = getEventProject(e);
     VirtualFile[] files = LangDataKeys.VIRTUAL_FILE_ARRAY.getData(e.getDataContext());
     if (project == null || files == null) return Collections.emptyList();

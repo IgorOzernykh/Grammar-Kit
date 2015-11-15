@@ -64,6 +64,10 @@ public class KnownAttribute<T> {
   public static final KnownAttribute<String>       ELEMENT_TYPE_PREFIX       = create(true, String.class, "elementTypePrefix", "");
   public static final KnownAttribute<String>       ELEMENT_TYPE_FACTORY      = create(true, String.class, "elementTypeFactory", null);
   public static final KnownAttribute<String>       TOKEN_TYPE_FACTORY        = create(true, String.class, "tokenTypeFactory", null);
+  public static final KnownAttribute<String>       PRINTER_PACKAGE           = create(true, String.class, "printerPackage", null);
+  public static final KnownAttribute<String>       FACTORY_PACKAGE           = create(true, String.class, "factoryPackage", null);
+  public static final KnownAttribute<String>       FILE_EXTENSION            = create(true, String.class, "fileExtension", null);
+
 
   public static final KnownAttribute<String>       EXTENDS                   = create(false, String.class, "extends", BnfConstants.AST_WRAPPER_PSI_ELEMENT_CLASS);
   public static final KnownAttribute<ListValue>    IMPLEMENTS                = create(false, ListValue.class, "implements", ListValue.singleValue( null, BnfConstants.PSI_ELEMENT_CLASS));
