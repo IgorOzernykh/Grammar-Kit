@@ -51,7 +51,7 @@ public class BnfGeneratePrinterAction extends AnAction {
       public void run() {
         for (BnfFile file : bnfFiles) {
           PrinterGenerator printerGenerator = new PrinterGenerator(file);
-          printerGenerator.generatePrinterFiles(getPrinterPackage(file), getFactoryPackage(file), getFileExtension(file));
+          printerGenerator.generatePrinterFiles();
         }
       }
     });

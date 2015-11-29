@@ -1,0 +1,11 @@
+package @LANG_PACKAGE@.templateBase
+
+import com.intellij.psi.PsiElement
+import @LANG_PACKAGE@.printer.@LANG@Printer
+import org.jetbrains.prettyPrinter.core.templateBase.PsiElementComponent
+import org.jetbrains.prettyPrinter.core.templateBase.template.SmartInsertPlace
+import org.jetbrains.prettyPrinter.core.templateBase.template.Template
+
+abstract class @LANG@PsiElementComponent<ET: PsiElement , IPT: SmartInsertPlace , T: Template<IPT>>(
+    override final val printer: @LANG@Printer
+): PsiElementComponent<ET, IPT, T>(printer){}

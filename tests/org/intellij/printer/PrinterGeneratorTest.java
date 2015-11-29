@@ -26,6 +26,7 @@ public class PrinterGeneratorTest extends LightCodeInsightFixtureTestCase {
   public void testPrinter() {
     BnfFile f = (BnfFile)myFixture.configureByFile("testData/printer/While.bnf");
     PrinterGenerator printerGenerator = new PrinterGenerator(f);
+    printerGenerator.generatePrinterFiles();
     assertEquals("", 1, 1);
   }
 }

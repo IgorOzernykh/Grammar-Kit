@@ -1,0 +1,145 @@
+package @LANG_PACKAGE@.printer
+
+import com.intellij.openapi.project.Project
+import com.intellij.psi.*
+import com.intellij.util.IncorrectOperationException
+import @LANG_PACKAGE@.@FACTORY@
+import @LANG_PACKAGE@.@FILE_CLASS@
+import @COMP_PACKAGE@.*
+import @LANG_PACKAGE@.components.*
+import org.jetbrains.format.FormatSet
+import org.jetbrains.prettyPrinter.core.performUndoWrite
+import org.jetbrains.prettyPrinter.core.printer.CommentConnectionUtils.VariantConstructionContext
+import org.jetbrains.prettyPrinter.core.printer.Printer
+import org.jetbrains.prettyPrinter.core.printer.PrinterSettings
+import org.jetbrains.prettyPrinter.core.templateBase.template.SmartInsertPlace
+import org.jetbrains.prettyPrinter.core.templateBase.template.Template
+import org.jetbrains.prettyPrinter.core.util.base.walker
+import org.jetbrains.prettyPrinter.core.util.psiElement.getOffsetInStartLine
+import java.lang.management.ManagementFactory
+// @SPECIFIC_IMPORT@
+
+class @LANG@Printer(
+  templateFile: PsiFile?
+, private val settings: PrinterSettings
+): Printer(settings) {
+    companion object {
+        public fun create(templateFile: PsiFile?, project: Project, width: Int): @LANG@Printer =
+                @LANG@Printer(templateFile, PrinterSettings.createProjectSettings(width, project))
+    }
+
+    //WARNING: must be declared before init!!!
+    //COMPONENTS
+    @COMP_DECLARATION@
+    public val @FILE_COMP_PASC@: @FILE_COMP@ = @FILE_COMP@(this)
+
+    init {
+        if (templateFile != null) {
+            fillTemplateLists(templateFile)
+        }
+    }
+
+    override fun reprintElementWithChildren_AllMeaningful(psiElement: PsiElement) {
+        walker(psiElement) { p ->
+            when (p) {
+                @APPLY_TEMPLATE@
+                else -> 5 + 5
+            }
+        }
+    }
+
+    override protected fun getTemplateVariants(p: PsiElement, context: VariantConstructionContext): FormatSet {
+        val variants: FormatSet =
+            when(p) {
+                @GET_VARIANTS@
+                is @FILE_CLASS@ -> @FILE_COMP_PASC@.getVariants(p, context)
+
+                else -> {
+                    getEmptySet()
+                }
+            }
+
+        return variants
+    }
+
+    override public fun fillTemplateLists(templateFile: PsiFile) {
+        areTemplatesFilled = true
+        walker(templateFile, { p: PsiElement ->
+            when (p) {
+                @GET_SAVE_TEMPLATE@
+                else -> 5 + 5
+            }
+        })
+    }
+
+    override public fun createElementFromText(p: PsiElement, text: String): PsiElement? {
+        val factory = @FACTORY@(getProject())
+        if (factory == null) { return null }
+
+        return when (p) {
+            @FACTORY_CREATE@
+            else -> null
+        }
+    }
+
+    override protected fun applyTmplt(p: PsiElement) {
+        val formatSet = getVariants(p)
+
+        val threadMXBean = ManagementFactory.getThreadMXBean()!!
+        val startTime = threadMXBean.getCurrentThreadCpuTime()
+        val chosenFormat = formatSet.head()
+        if (chosenFormat == null) { return }
+
+        fun replaceElement(newElement: PsiElement) {
+            getProject().performUndoWrite { p.replace(newElement) }
+        }
+
+        val startLineOffset = p.getOffsetInStartLine()
+        val newElementText = chosenFormat.toText(startLineOffset, "")
+
+        if (p is PsiFile) {
+            val document = PsiDocumentManager.getInstance(getProject())?.getDocument(p)
+            val oldDocSize = document?.getText()?.size
+            if (document == null || oldDocSize == null) { return }
+            getProject().performUndoWrite {
+                document.replaceString(0, oldDocSize, newElementText)
+            }
+            return
+        }
+
+        val statement: PsiElement
+        try {
+            val createdStatement = createElementFromText(p, newElementText)
+            if (createdStatement == null) { return }
+            statement = createdStatement
+        } catch (e: IncorrectOperationException) { return }
+
+
+        renewCache(p, statement)
+        replaceElement(statement)
+
+        val endTime = threadMXBean.getCurrentThreadCpuTime()
+        replaceTime += endTime - startTime
+    }
+
+    override fun addTemplate(p: PsiElement) {
+        areTemplatesFilled = true
+        when(p) {
+            @GET_SAVE_TEMPLATE@
+            else -> 5 + 5
+        }
+    }
+
+    override fun countTemplates(): Int {
+        return @COUNT_TEMPLATES@
+    }
+
+    override fun getTemplate(p: PsiElement): Template<SmartInsertPlace>? {
+        return when(p) {
+            @GET_TMPLT@
+
+            else -> null
+        }
+    }
+}
+
