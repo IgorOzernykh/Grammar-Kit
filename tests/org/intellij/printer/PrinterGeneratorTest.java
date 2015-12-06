@@ -17,14 +17,24 @@
 package org.intellij.printer;
 
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
+import org.intellij.grammar.generator.ParserGenerator;
 import org.intellij.grammar.generator.PrinterGenerator;
 import org.intellij.grammar.psi.BnfFile;
+
+import java.io.IOException;
 
 public class PrinterGeneratorTest extends LightCodeInsightFixtureTestCase {
   public PrinterGeneratorTest() {}
 
   public void testPrinter() {
     BnfFile f = (BnfFile)myFixture.configureByFile("testData/printer/While.bnf");
+    ParserGenerator pg = new ParserGenerator(f, "testData/printer/", "testData/printer/1/");
+    try {
+      pg.generate();
+    } catch (IOException e) {
+      return;
+    }
+
     PrinterGenerator printerGenerator = new PrinterGenerator(f);
     printerGenerator.generatePrinterFiles();
     assertEquals("", 1, 1);

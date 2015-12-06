@@ -1,0 +1,37 @@
+package @LANG_PACKAGE@.components
+
+@IMPORT_LIST@
+import @COMP_PACKAGE@.@COMP_CLASS@
+
+public class @NAME_CC@Component(
+        printer: @LANG@Printer
+): @LANG@PsiElementComponent<@COMP_CLASS@, SmartInsertPlace, PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>>(printer)
+{
+    // DECL TAGS
+    @DECL_TAGS@
+
+    // GEN SUBTREES
+    @GEN_SUBTREES@
+    /*
+    @ADD_SUBTREES@
+    @GET_SUBTREES@
+    @PREPARE_SUBTREE@
+    */
+    // GET NEW ELEM
+    @GET_NEW_ELEM@
+
+    // UPDATE SUBTREES
+    @UPDATE_SUBTREES@
+
+    // PREPARE SUBTREES
+    @PREPARE_SUBTREES@
+
+    //GET TAGS
+    @GET_TAGS@
+    // IS TEMPL SUIT
+
+    @IS_TEMPL_SUIT@
+
+    // GET TEMPLATE
+    @GET_TEMPLATE@
+}

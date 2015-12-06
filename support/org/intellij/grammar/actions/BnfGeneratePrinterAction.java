@@ -62,7 +62,7 @@ public class BnfGeneratePrinterAction extends AnAction {
   }
 
   static String getFactoryPackage(BnfFile bnfFile) {
-    return bnfFile.findAttributeValue(null, KnownAttribute.FACTORY_PACKAGE, null);
+    return bnfFile.findAttributeValue(null, KnownAttribute.FACTORY_CLASS, null);
   }
 
   static String getFileExtension(BnfFile bnfFile) {

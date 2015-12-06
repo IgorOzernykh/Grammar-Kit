@@ -1,0 +1,14 @@
+import @FACTORY_CLASS@// @FACTORY_PACKAGE@.@FACTORY@
+import @LANG_PACKAGE@.printer.@LANG@Printer
+import @LANG_PACKAGE@.templateBase.@LANG@PsiElementComponent
+import org.jetbrains.format.FormatSet
+import org.jetbrains.prettyPrinter.core.printer.CommentConnectionUtils.VariantConstructionContext
+import org.jetbrains.prettyPrinter.core.templateBase.template.PsiTemplateGen
+import org.jetbrains.prettyPrinter.core.templateBase.template.SmartInsertPlace
+import org.jetbrains.prettyPrinter.core.util.box.Box
+import org.jetbrains.prettyPrinter.core.util.psiElement.getCorrectTextOffset
+import org.jetbrains.prettyPrinter.core.util.psiElement.toBox
+import org.jetbrains.prettyPrinter.core.util.psiElement.getTextRange
+import org.jetbrains.prettyPrinter.core.util.string.getFillConstant
+import java.util.HashMap
+import java.util.HashSet

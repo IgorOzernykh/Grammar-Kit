@@ -619,6 +619,10 @@ public class ParserGeneratorUtil {
       return hasModifier(node, "upper");
     }
 
+    public static boolean isList(BnfRule node) {
+      return  hasModifier(node, "list");
+    }
+
     private static boolean hasModifier(BnfRule node, String s) {
       for (BnfModifier modifier : node.getModifierList()) {
         if (s.equals(modifier.getText())) return true;

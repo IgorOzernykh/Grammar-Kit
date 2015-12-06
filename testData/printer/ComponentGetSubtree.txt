@@ -1,0 +1,8 @@
+private fun get@NAME_CC@Variants(
+        p: @COMP_CLASS@
+        , context: VariantConstructionContext
+): FormatSet {
+    val @NAME@ = p.get@SUBTREE_GET@()
+    if (@NAME@ == null) { return printer.getEmptySet() }
+    return printer.getVariants(@NAME@, context)
+}

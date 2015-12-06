@@ -1,0 +1,8 @@
+override protected fun updateSubtreeVariants(
+        p       : @COMP_CLASS@
+        , tmplt   : PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>
+        , variants: Map<String, FormatSet>
+        , context: VariantConstructionContext
+): Map<String, FormatSet> {
+    @UPDATE_SUBTREES@
+}

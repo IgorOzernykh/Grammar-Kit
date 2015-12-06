@@ -1,0 +1,18 @@
+private fun add@NAME_CC@ToInsertPlaceMap(
+        p: @COMP_CLASS@
+        , insertPlaceMap: MutableMap<String, SmartInsertPlace>
+        , delta: Int
+): Boolean {
+    val @NAME@ = p.get@SUBTREE_GET@()
+    val @NAME@TextRange = @NAME@?.getTextRange()
+    if (@NAME@TextRange == null) { return false }
+
+    val text = p.getContainingFile()?.getText()
+    if (text == null) { return false }
+    val fillConstant = text.getFillConstant(@NAME@TextRange)
+
+    insertPlaceMap.put(
+           @NAME_CAP@_TAG
+           , SmartInsertPlace(@NAME@TextRange.shiftRight(delta), fillConstant, @EVERYWHERE_SUIT@)    )
+    return true
+}

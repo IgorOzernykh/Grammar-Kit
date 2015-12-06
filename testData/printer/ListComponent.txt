@@ -1,0 +1,31 @@
+package @LANG_PACKAGE@.components
+
+import com.intellij.psi.PsiElement
+import @FACTORY_PACKAGE@.@FACTORY@
+import @LANG_PACKAGE@.printer.@LANG@Printer
+import @COMP_PACKAGE@.@COMP_CLASS@
+import @LANG_PACKAGE@.templateBase.@LANG@PsiElementComponent
+import org.jetbrains.format.FormatSet
+import org.jetbrains.prettyPrinter.core.printer.CommentConnectionUtils.VariantConstructionContext
+import org.jetbrains.prettyPrinter.core.templateBase.template.SmartInsertPlace
+import org.jetbrains.prettyPrinter.core.templateBase.template.Template
+import org.jetbrains.prettyPrinter.core.util.psiElement.deleteSpaces
+import java.util.ArrayList
+
+public class @NAME_CC@Component(
+        printer: @LANG@Printer
+): @LANG@PsiElementComponent<@COMP_CLASS@, SmartInsertPlace, ListTemplate<@COMP_CLASS@, SmartInsertPlace>>(printer)
+   , ListComponent<@COMP_CLASS@>
+{
+    override protected fun getList(p: @COMP_CLASS@) = p.get@SUBTREE_GET@().toList() ?: listOf()
+
+    override public fun getNormalizedElement(p: @COMP_CLASS@): @COMP_CLASS@? {
+        val normalizedText = p.deleteSpaces()
+        val element = getNewElement(normalizedText)
+        return element
+    }
+
+    @GET_NEW_ELEM@
+
+    @IS_TEMPL_SUIT@
+}

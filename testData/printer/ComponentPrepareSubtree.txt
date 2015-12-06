@@ -1,0 +1,9 @@
+private fun prepare@NAME_CC@Variants(
+        p: @COMP_CLASS@
+        , variants: MutableMap<String, FormatSet>
+        , context: VariantConstructionContext
+) {
+    val @NAME@Variants = get@NAME_CC@Variants(p, context)
+    if (@NAME@Variants.isEmpty()) { return }
+    variants.put(@NAME_CAP@_TAG, @NAME@Variants)
+}

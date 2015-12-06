@@ -11,8 +11,9 @@
     tokenTypeClass="com.intellij.whileLang.WhileTokenType"
 
     printerPackage="com.intellij.whileLang"
-    factoryPackage="com.intellij.whileLang"
+    factoryClass="com.intellij.whileLang.WhileElementFactory"
     fileExtension="l"
+    fileClass="com.intellij.whileLang.WhileFile"
 
     tokens=[
       CRLF='regexp:(\r\n|\n)'
@@ -57,12 +58,7 @@ if_stmt     ::= IF '(' bexpr ')' THEN stmt_list (ELSE stmt_list)? FI {
 }
 while_stmt  ::= WHILE '(' bexpr ')' DO stmt_list OD
 procedure   ::= PROC id '(' param_list ')' stmt_list ENDP
-param_list  ::= ref_expr? (COMMA ref_expr)*
-{
-    methods=[
-      isList="/true"
-    ]
-}
+list param_list  ::= ref_expr? (COMMA ref_expr)*
 
 fake ar_op ::= plus_op|mul_op
 fake binary_expr ::= expr ar_op expr {
