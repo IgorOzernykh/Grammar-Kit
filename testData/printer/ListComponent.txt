@@ -1,7 +1,7 @@
 package @LANG_PACKAGE@.components
 
 import com.intellij.psi.PsiElement
-import @FACTORY_PACKAGE@.@FACTORY@
+import @FACTORY_CLASS@
 import @LANG_PACKAGE@.printer.@LANG@Printer
 import @COMP_PACKAGE@.@COMP_CLASS@
 import @LANG_PACKAGE@.templateBase.@LANG@PsiElementComponent
