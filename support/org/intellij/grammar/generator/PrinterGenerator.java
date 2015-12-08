@@ -172,8 +172,8 @@ public class PrinterGenerator {
       String s = getCommonComponentText(myFile.getRule("if_stmt"));
       FileUtil.writeToFile(new File("testData/printer/component.kt"), s);
 
-      //String sl = getListComponentText(myFile.getRule("param_list"));
-      //FileUtil.writeToFile(new File("testData/printer/ListComp.kt"), sl);
+      String sl = getListComponentText(myFile.getRule("param_list"));
+      FileUtil.writeToFile(new File("testData/printer/ListComp.kt"), sl);
       String fileComp = getFileComponentText();
       FileUtil.writeToFile(new File("testData/printer/file.kt"), fileComp);
     }
@@ -209,6 +209,7 @@ public class PrinterGenerator {
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
     replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
     replaceMap.put("@LANG@", languageName);
+    replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
     replaceMap.put("@COMP_PACKAGE@", componentPackage);
     replaceMap.put("@NAME_CC@", getBeautifulName(rule.getName()));
     replaceMap.put("@GET_NEW_ELEM@", getGetNewElementText(rule));
@@ -297,8 +298,15 @@ public class PrinterGenerator {
 
   private String getIsTemplateSuitableText(BnfRule rule) {
     String templateContent = readTemplate("ComponentIsTemplSuit.txt");
+    String templateInsertPlace;
+    if (ParserGeneratorUtil.Rule.isList(rule)) {
+      templateInsertPlace = "ListTemplate";
+    } else {
+      templateInsertPlace = "PsiTemplateGen";
+    }
     Map<String, String> replaceMap = ImmutableMap.of(
       "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
+      "@TEMPLATE@", templateInsertPlace,
       "@TEMPL_SUIT@", "return true"
     );
     return replaceTemplates(templateContent, replaceMap);
@@ -451,7 +459,7 @@ public class PrinterGenerator {
     RuleGraphHelper.Cardinality cardinality = methodInfo.cardinality;
     if (methodInfo.rule == null && methodInfo.name.isEmpty()) { return null; }  // it is a token
     boolean many = cardinality.many();
-    if (many) return null; // TODO: Wrong
+    //if (many) return null; // TODO: Wrong
     String subtreeName = getBeautifulName(methodInfo.name);
     String getMethod = ParserGeneratorUtil.toIdentifier(methodInfo.name, "");
     boolean isRequired = cardinality == RuleGraphHelper.Cardinality.REQUIRED;
@@ -505,7 +513,7 @@ public class PrinterGenerator {
 
     String subtreeName = getBeautifulName(methodInfo.name);
     boolean isRequired = !cardinality.many() && cardinality == RuleGraphHelper.Cardinality.REQUIRED && !totalNullable;
-    boolean hasSeveralElements = cardinality.many();
+    boolean hasSeveralElements = false;  // cardinality.many();  // TODO: hasSeveralElements
     boolean isEverywhereSuitable = true; // TODO: isEverywhereSuitable
 
     return new Subtree(subtreeName, subtreeName, isRequired, isEverywhereSuitable, hasSeveralElements);
