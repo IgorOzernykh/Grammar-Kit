@@ -165,17 +165,22 @@ public class PrinterGenerator {
   public void generatePrinterFiles() {
     // TODO: remove test output
     try {
+      List<Subtree> subtrees = getSubtreesForRule(myFile.getRule("if_stmt"));
       FileUtil.writeToFile(new File("testData/printer/templateBase/" + languageName + "PsiElementComponent.kt"),
                            getPsiElementComponentText());
       FileUtil.writeToFile(new File("testData/printer/" + languageName + "Printer.kt"), getPrinterText());
       String s = getCommonComponentText(myFile.getRule("if_stmt"));
       FileUtil.writeToFile(new File("testData/printer/component.kt"), s);
+
+      //String sl = getListComponentText(myFile.getRule("param_list"));
+      //FileUtil.writeToFile(new File("testData/printer/ListComp.kt"), sl);
+      String fileComp = getFileComponentText();
+      FileUtil.writeToFile(new File("testData/printer/file.kt"), fileComp);
     }
     catch (IOException e) {
       return; // TODO: provide some info
     }
   }
-
 
   private String getCommonComponentText(BnfRule rule) {
     String templateContent = readTemplate("Component.txt");
@@ -198,29 +203,65 @@ public class PrinterGenerator {
     return replaceTemplates(templateContent, replaceMap);
   }
 
+  private String getListComponentText(BnfRule rule) {
+    String templateContent = readTemplate("ListComponent.txt");
+    Map<String, String> replaceMap = new HashMap<String, String>();
+    replaceMap.put("@LANG_PACKAGE@", printerPackage);
+    replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
+    replaceMap.put("@LANG@", languageName);
+    replaceMap.put("@COMP_PACKAGE@", componentPackage);
+    replaceMap.put("@NAME_CC@", getBeautifulName(rule.getName()));
+    replaceMap.put("@GET_NEW_ELEM@", getGetNewElementText(rule));
+    replaceMap.put("@IS_TEMPL_SUIT@", getIsTemplateSuitableText(rule));
+    Subtree subtree = getSubtreesForRule(rule).get(0);
+    replaceMap.put("@SUBTREE_GET@", subtree.getMethod);
+
+    return replaceTemplates(templateContent, replaceMap);
+  }
+
+  private String getFileComponentText() {
+    Map<String, String> replaceMap = new HashMap<String, String>();
+    replaceMap.put("@LANG_PACKAGE@", printerPackage);
+    replaceMap.put("@FILE_CLASS@", fileClass);
+    replaceMap.put("@LANG@", languageName);
+    String componentClass = StringUtil.getShortName(fileClass);
+    replaceMap.put("@COMP_CLASS@", componentClass);
+    String componentName = StringUtil.trimStart(componentClass, psiClassPrefix);
+    replaceMap.put("@NAME_CC@", componentName);
+    String getSubtreesText = "";
+    String getSubtreesVariantsText = "";
+    for (Subtree subtree : getSubtreesForRule(myGrammarRoot)) {
+      getSubtreesText += getFileGetSubtreesText(subtree);
+      getSubtreesVariantsText += getFileGetSubtreeVariantsText(subtree);
+    }
+    replaceMap.put("@GET_SUBTREES@", getSubtreesText);
+    replaceMap.put("@GET_SUBTREES_VARIANTS@", getSubtreesVariantsText);
+
+    String templateContent = readTemplate("FileComponent.txt");
+
+    return replaceTemplates(templateContent, replaceMap);
+  }
+
   private class Subtree {
     private Subtree(
       String name,
       String getMethod,
       boolean isRequired,
       boolean isEverywhereSuitable,
-      boolean hasSeveralElements,
-      boolean isList
+      boolean hasSeveralElements
     ) {
       this.name = name;
       this.getMethod = getMethod;
       this.isRequired = isRequired;
       this.isEverywhereSuitable = isEverywhereSuitable;
       this.hasSeveralElements = hasSeveralElements;
-      this.isList = isList;
     }
 
-    public String name;
+    public String name;  // TODO: decapitalize
     public String getMethod;
     public boolean isRequired;
     public boolean isEverywhereSuitable;
     public boolean hasSeveralElements;
-    public boolean isList;
   }
 
   private String getTagsDeclaration(BnfRule rule) {
@@ -259,6 +300,27 @@ public class PrinterGenerator {
     Map<String, String> replaceMap = ImmutableMap.of(
       "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
       "@TEMPL_SUIT@", "return true"
+    );
+    return replaceTemplates(templateContent, replaceMap);
+  }
+
+  private String getFileGetSubtreeVariantsText(Subtree subtree) {
+    String templateContent = readTemplate("FileGetSubtreeVariants.txt");
+
+    Map<String, String> replaceMap = ImmutableMap.of(
+      "@NAME@", subtree.name,
+      "@NAME_CC@", StringUtil.capitalize(subtree.name)
+    );
+    return replaceTemplates(templateContent, replaceMap);
+  }
+
+  private String getFileGetSubtreesText(Subtree subtree) {
+    String templateContent = readTemplate("ComponentGetSubtree.txt");
+    Map<String, String> replaceMap = ImmutableMap.of(
+      "@NAME_CC@", StringUtil.capitalize(subtree.name),
+      "@COMP_CLASS@", fileClass,
+      "@NAME@", subtree.name,
+      "@SUBTREE_GET@", subtree.getMethod
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -303,7 +365,6 @@ public class PrinterGenerator {
     return replaceTemplates(templateContent, replaceMap);
   }
 
-
   private String getPrepareSubtreesText(BnfRule rule) {
     String templateContent = readTemplate("ComponentPrepareSubtrees.txt");
     String prepSubtreesCode = "";
@@ -316,7 +377,6 @@ public class PrinterGenerator {
     );
     return replaceTemplates(templateContent, replaceMap);
   }
-
 
   private String getGetTagsText(BnfRule rule) {
     String getTagsCode = "";
@@ -364,10 +424,91 @@ public class PrinterGenerator {
   private List<Subtree> createSubtreesList(BnfRule rule) {
     // TODO: get subtrees
     List<Subtree> subtrees = new ArrayList<Subtree>();
-    subtrees.add(new Subtree("condition", "Bexpr",true, true, false, false));
-    subtrees.add(new Subtree("thenBranch", "ThenBranch", true, true, false, false));
-    subtrees.add(new Subtree("elseBranch", "ElseBranch", false, true, false, false));
+    for (RuleMethodsHelper.MethodInfo methodInfo : myRuleMethodsHelper.getFor(rule)) {
+      if (methodInfo.name.isEmpty()) continue;
+      switch (methodInfo.type) {
+        case 1:
+        case 2:
+          Subtree subtree12 = genType12(methodInfo);
+          if (subtree12 != null) {
+            subtrees.add(subtree12);
+          }
+          break;
+        case 3:
+          Subtree subtree3 = genType3(rule, methodInfo);
+          if (subtree3 != null) {
+            subtrees.add(subtree3);
+          }
+          break;
+        default:
+          break;
+      }
+    }
     return subtrees;
+  }
+
+  private Subtree genType12(RuleMethodsHelper.MethodInfo methodInfo) {
+    RuleGraphHelper.Cardinality cardinality = methodInfo.cardinality;
+    if (methodInfo.rule == null && methodInfo.name.isEmpty()) { return null; }  // it is a token
+    boolean many = cardinality.many();
+    if (many) return null; // TODO: Wrong
+    String subtreeName = getBeautifulName(methodInfo.name);
+    String getMethod = ParserGeneratorUtil.toIdentifier(methodInfo.name, "");
+    boolean isRequired = cardinality == RuleGraphHelper.Cardinality.REQUIRED;
+    boolean isEverywhereSuitable = true;  // TODO: isEverywhereSuitable
+    boolean hasSeveralElements = false;  // TODO: hasSeveralElements
+
+    return new Subtree(subtreeName, getMethod, isRequired, isEverywhereSuitable, hasSeveralElements);
+  }
+
+  private Subtree genType3(BnfRule startRule, RuleMethodsHelper.MethodInfo methodInfo) {
+    BnfRule targetRule = startRule;
+    RuleGraphHelper.Cardinality cardinality = RuleGraphHelper.Cardinality.REQUIRED;
+    String context = "";
+    String [] splitPath = methodInfo.path.split("/");
+    boolean totalNullable = false;
+    for (int i = 0; i < splitPath.length; i++) {
+      String pathElement = splitPath[i];
+      boolean last = i == splitPath.length - 1;
+      int indexStart = pathElement.indexOf('[');
+      int indexEnd = indexStart > 0 ? pathElement.lastIndexOf(']') : -1;
+
+      String item = indexEnd > -1 ? pathElement.substring(0, indexStart).trim() : pathElement.trim();
+      String index = indexEnd > -1 ? pathElement.substring(indexStart + 1, indexEnd).trim() : null;
+      if ("first".equals(index)) index = "0";
+
+      if (item.isEmpty()) continue;
+
+      RuleMethodsHelper.MethodInfo targetInfo = myRuleMethodsHelper.getMethodInfo(targetRule, item);
+      if (targetInfo == null ||
+          index != null && !targetInfo.cardinality.many() ||
+          i > 0 && StringUtil.isEmpty(targetInfo.name) && targetInfo.rule == null) {
+        return null;
+      }
+      boolean many = targetInfo.cardinality.many();
+      String className = StringUtil.getShortName(
+        targetInfo.rule == null ? BnfConstants.PSI_ELEMENT_CLASS : psiClassPrefix + getBeautifulName(methodInfo.name));
+      String type = (many ? "List<" : "") + className + (many ? ">" : "");
+      targetRule = targetInfo.rule;
+      cardinality = targetInfo.cardinality;
+      totalNullable |= cardinality.optional();
+      if (index != null) {
+        boolean isLast = index.equals("last");
+        if (isLast)
+          index = context + "size() - 1";
+
+        cardinality = cardinality == RuleGraphHelper.Cardinality.AT_LEAST_ONE
+                      && index.equals("0") ? RuleGraphHelper.Cardinality.REQUIRED : RuleGraphHelper.Cardinality.AT_LEAST_ONE;
+        totalNullable |= cardinality.optional();
+      }
+    }
+
+    String subtreeName = getBeautifulName(methodInfo.name);
+    boolean isRequired = !cardinality.many() && cardinality == RuleGraphHelper.Cardinality.REQUIRED && !totalNullable;
+    boolean hasSeveralElements = cardinality.many();
+    boolean isEverywhereSuitable = true; // TODO: isEverywhereSuitable
+
+    return new Subtree(subtreeName, subtreeName, isRequired, isEverywhereSuitable, hasSeveralElements);
   }
 
   private Map<BnfRule, List<Subtree>> createSubtreeMap() {
