@@ -256,13 +256,26 @@ public class PrinterGenerator {
       this.isRequired = isRequired;
       this.isEverywhereSuitable = isEverywhereSuitable;
       this.hasSeveralElements = hasSeveralElements;
+      this.ruleName = null;
     }
 
+    private Subtree(
+      String name,
+      String getMethod,
+      boolean isRequired,
+      boolean isEverywhereSuitable,
+      boolean hasSeveralElements,
+      String ruleName
+    ) {
+      this(name, getMethod, isRequired, isEverywhereSuitable, hasSeveralElements);
+      this.ruleName = ruleName;
+    }
     public String name;  // TODO: decapitalize
     public String getMethod;
     public boolean isRequired;
     public boolean isEverywhereSuitable;
     public boolean hasSeveralElements;
+    String ruleName;
   }
 
   private String getTagsDeclaration(BnfRule rule) {
@@ -444,9 +457,14 @@ public class PrinterGenerator {
           break;
         case 3:
           Subtree subtree3 = genType3(rule, methodInfo);
-          if (subtree3 != null) {
-            subtrees.add(subtree3);
+          if (subtree3 == null) { continue; }
+          for (Subtree subtree : subtrees) {
+            if (subtree3.ruleName != null && subtree.name.equals(subtree3.ruleName)) {
+              subtrees.remove(subtree);
+              break;
+            }
           }
+          subtrees.add(subtree3);
           break;
         default:
           break;
@@ -516,7 +534,8 @@ public class PrinterGenerator {
     boolean hasSeveralElements = false;  // cardinality.many();  // TODO: hasSeveralElements
     boolean isEverywhereSuitable = true; // TODO: isEverywhereSuitable
 
-    return new Subtree(subtreeName, subtreeName, isRequired, isEverywhereSuitable, hasSeveralElements);
+    return new Subtree(subtreeName, subtreeName, isRequired, isEverywhereSuitable, hasSeveralElements,
+                       ParserGeneratorUtil.toIdentifier(targetRule.getName(), ""));
   }
 
   private Map<BnfRule, List<Subtree>> createSubtreeMap() {
