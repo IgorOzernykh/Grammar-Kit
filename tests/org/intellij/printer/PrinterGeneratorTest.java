@@ -35,7 +35,7 @@ public class PrinterGeneratorTest extends LightCodeInsightFixtureTestCase {
       return;
     }
 
-    PrinterGenerator printerGenerator = new PrinterGenerator(f);
+    PrinterGenerator printerGenerator = new PrinterGenerator(f, "testData/printer/output/"); // TODO: fix path
     printerGenerator.generatePrinterFiles();
     assertEquals("", 1, 1);
   }

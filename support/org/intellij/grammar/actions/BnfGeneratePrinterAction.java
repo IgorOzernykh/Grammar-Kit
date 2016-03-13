@@ -20,14 +20,29 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ui.configuration.PathUIUtils;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vcs.changes.BackgroundFromStartOption;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.util.PathUtil;
+import com.intellij.util.containers.ContainerUtil;
 import org.intellij.grammar.KnownAttribute;
+import org.intellij.grammar.generator.ParserGeneratorUtil;
 import org.intellij.grammar.generator.PrinterGenerator;
 import org.intellij.grammar.psi.BnfFile;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class BnfGeneratePrinterAction extends AnAction {
   @Override
@@ -46,13 +61,43 @@ public class BnfGeneratePrinterAction extends AnAction {
     PsiDocumentManager.getInstance(project).commitAllDocuments();
     FileDocumentManager.getInstance().saveAllDocuments();
 
+    final Map<BnfFile, VirtualFile> rootMap = ContainerUtil.newLinkedHashMap();
     ApplicationManager.getApplication().runWriteAction(new Runnable() {
       @Override
       public void run() {
         for (BnfFile file : bnfFiles) {
-          PrinterGenerator printerGenerator = new PrinterGenerator(file);
+          String parserClass = ParserGeneratorUtil.getRootAttribute(file, KnownAttribute.PARSER_CLASS);
+          VirtualFile target = FileGeneratorUtil.getTargetDirectoryFor(project, file.getVirtualFile(),
+                                                                       StringUtil.getShortName(parserClass),
+                                                                       StringUtil.getPackageName(parserClass), true);
+          //PrinterGenerator printerGenerator = new PrinterGenerator(file);
+          //printerGenerator.generatePrinterFiles();
+          rootMap.put(file, target);
+        }
+      }
+    });
+
+    ProgressManager.getInstance().run(new Task.Backgroundable(project, "Printer Generation", true, new BackgroundFromStartOption()) {
+      List<File> files = ContainerUtil.newArrayList();
+      Set<VirtualFile> targets = ContainerUtil.newLinkedHashSet();
+      long totalWritten = 0;
+
+      @Override
+      public void run(@NotNull ProgressIndicator indicator) {
+        long startTime = System.currentTimeMillis();
+        indicator.setIndeterminate(true);
+
+        for (final BnfFile file : bnfFiles) {
+          final String sourcePath = FileUtil.toSystemDependentName(
+            PathUtil.getCanonicalPath(file.getVirtualFile().getParent().getPath()));
+          VirtualFile target = rootMap.get(file);
+          if (target == null) return;
+          targets.add(target);
+          final File genDir = new File(VfsUtil.virtualToIoFile(target).getAbsolutePath());
+          PrinterGenerator printerGenerator = new PrinterGenerator(file, genDir.getPath());
           printerGenerator.generatePrinterFiles();
         }
+
       }
     });
   }

@@ -17,6 +17,7 @@
 package org.intellij.grammar.generator;
 
 import com.google.common.collect.ImmutableMap;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class PrinterGenerator {
+  public static final Logger LOG = Logger.getInstance("PrinterGenerator");
+
   final BnfFile myFile;
   final RuleGraphHelper myGraphHelper;
   final ExpressionHelper myExpressionHelper;
@@ -48,10 +51,12 @@ public class PrinterGenerator {
   final String elementFactoryClassName;
   final String componentPackage;
   final Map<BnfRule, List<Subtree>> mySubtreeMap;
+  final String myOutputPath;
   private final String pathToTemplates = "testData/printer/";
 
-  public PrinterGenerator(BnfFile f) {
+  public PrinterGenerator(BnfFile f, String outputPath) {
     myFile = f;
+    myOutputPath = outputPath;
     myGraphHelper = RuleGraphHelper.getCached(myFile);
     myExpressionHelper = new ExpressionHelper(myFile, myGraphHelper, true);
     mySimpleTokens = ContainerUtil.newLinkedHashMap(RuleGraphHelper.getTokenMap(myFile));
@@ -163,22 +168,30 @@ public class PrinterGenerator {
   }
 
   public void generatePrinterFiles() {
-    // TODO: remove test output
+    // TODO: fix resources path
     try {
-      List<Subtree> subtrees = getSubtreesForRule(myFile.getRule("if_stmt"));
-      FileUtil.writeToFile(new File("testData/printer/templateBase/" + languageName + "PsiElementComponent.kt"),
-                           getPsiElementComponentText());
-      FileUtil.writeToFile(new File("testData/printer/" + languageName + "Printer.kt"), getPrinterText());
-      String s = getCommonComponentText(myFile.getRule("if_stmt"));
-      FileUtil.writeToFile(new File("testData/printer/component.kt"), s);
+      String genPath = myOutputPath;
+      FileUtil.writeToFile(new File(genPath + "templateBase/" + languageName + "PsiElementComponent.kt")
+        , getPsiElementComponentText());
+      FileUtil.writeToFile(new File(genPath + "printer/" + languageName + "Printer.kt"), getPrinterText());
 
-      String sl = getListComponentText(myFile.getRule("param_list"));
-      FileUtil.writeToFile(new File("testData/printer/ListComp.kt"), sl);
-      String fileComp = getFileComponentText();
-      FileUtil.writeToFile(new File("testData/printer/file.kt"), fileComp);
+      String componentsPath = genPath + "components/";
+      for (BnfRule rule : mySignificantRules.values()) {
+        String componentName = getBeautifulName(rule.getName());
+        String componentFileName = componentsPath + componentName + ".kt";
+        if (rule.equals(myGrammarRoot)) {
+          FileUtil.writeToFile(new File(componentsPath + languageName + "File.kt"), getFileComponentText());
+          continue;
+        }
+        if (ParserGeneratorUtil.Rule.isList(rule)) {
+          FileUtil.writeToFile(new File(componentFileName), getListComponentText(rule));
+        } else {
+          FileUtil.writeToFile(new File(componentFileName), getCommonComponentText(rule));
+        }
+      }
     }
     catch (IOException e) {
-      return; // TODO: provide some info
+      LOG.error(e); // TODO: provide some info
     }
   }
 
@@ -555,6 +568,7 @@ public class PrinterGenerator {
     try {
       templateContent = FileUtil.loadFile(new File(pathToTemplates + name));
     } catch (IOException e) {
+      LOG.error(e);
       return "";
     }
     return templateContent;
