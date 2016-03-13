@@ -1,4 +1,4 @@
-override protected fun getNewElement(
+override fun getNewElement(
         text: String
 ): @COMP_CLASS@? {
     try {

@@ -1,25 +1,68 @@
 package @LANG_PACKAGE@.components
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiComment
 import @FACTORY_CLASS@
 import @LANG_PACKAGE@.printer.@LANG@Printer
 import @COMP_PACKAGE@.@COMP_CLASS@
 import @LANG_PACKAGE@.templateBase.@LANG@PsiElementComponent
+import org.jetbrains.format.Format
 import org.jetbrains.format.FormatSet
 import org.jetbrains.prettyPrinter.core.printer.CommentConnectionUtils.VariantConstructionContext
+import org.jetbrains.prettyPrinter.core.templateBase.template.ListTemplate
 import org.jetbrains.prettyPrinter.core.templateBase.template.SmartInsertPlace
-import org.jetbrains.prettyPrinter.core.templateBase.template.Template
+import org.jetbrains.prettyPrinter.core.util.box.Box
 import org.jetbrains.prettyPrinter.core.util.psiElement.deleteSpaces
-import java.util.ArrayList
+import org.jetbrains.prettyPrinter.core.util.psiElement.getCorrectTextOffset
+import org.jetbrains.prettyPrinter.core.util.psiElement.getNotNullTextRange
+import org.jetbrains.prettyPrinter.core.util.string.getFillConstant
+import java.util.*
 
-public class @NAME_CC@Component(
+class @NAME_CC@Component(
         printer: @LANG@Printer
 ): @LANG@PsiElementComponent<@COMP_CLASS@, SmartInsertPlace, ListTemplate<@COMP_CLASS@, SmartInsertPlace>>(printer)
-   , ListComponent<@COMP_CLASS@>
 {
-    override protected fun getList(p: @COMP_CLASS@) = p.get@SUBTREE_GET@().toList() ?: listOf()
+    final val ELEMENTS_TAG: String
+            get() = "elements"
 
-    override public fun getNormalizedElement(p: @COMP_CLASS@): @COMP_CLASS@? {
+    override fun getTemplateFromElement(newP: @COMP_CLASS@): ListTemplate<@COMP_CLASS@, SmartInsertPlace>? = null
+
+    override fun getTmplt(p: @COMP_CLASS@): ListTemplate<@COMP_CLASS@, SmartInsertPlace>? {
+            val newP = getNormalizedElement(p) ?: p
+            return getListTmplt(newP)
+        }
+
+    protected fun getListTmplt(
+                p: @COMP_CLASS@
+        ): ListTemplate<@COMP_CLASS@, SmartInsertPlace>? {
+            for (ch in p.children) {
+                if (ch is PsiComment) {
+                    return null
+                }
+            }
+
+            val list = getList(p)
+            if (list.isEmpty()) { return null }
+
+            val firstElem  = list[0]
+            val lastElem   = list[list.lastIndex]
+
+            val firstRange = firstElem.getNotNullTextRange()
+            val lastRange  = lastElem .getNotNullTextRange()
+
+            val rangeInFile = firstRange.union(lastRange)
+            val text = p.containingFile?.text ?: ""
+            val fillConstant = text.getFillConstant(rangeInFile)
+            val range = rangeInFile.shiftRight(-p.getCorrectTextOffset())
+            val insertPlaceMap = HashMap<String, SmartInsertPlace>()
+            insertPlaceMap.put(ELEMENTS_TAG, SmartInsertPlace(range, fillConstant, Box.getEverywhereSuitable()))
+
+            val contentRelation = getContentRelation(p.text ?: "", insertPlaceMap)
+            return ListTemplate(p, insertPlaceMap, contentRelation.first, contentRelation.second)
+        }
+
+    protected fun getList(p: @COMP_CLASS@) = p.@SUBTREE_GET@.toList() ?: listOf()
+
+    fun getNormalizedElement(p: @COMP_CLASS@): @COMP_CLASS@? {
         val normalizedText = p.deleteSpaces()
         val element = getNewElement(normalizedText)
         return element
@@ -28,4 +71,30 @@ public class @NAME_CC@Component(
     @GET_NEW_ELEM@
 
     @IS_TEMPL_SUIT@
+
+    override fun prepareSubtreeVariants(p: @COMP_CLASS@, context: VariantConstructionContext): Map<String, FormatSet> {
+        return mapOf(Pair(ELEMENTS_TAG, getElementsVariants_new(p, context)))
+    }
+
+    override fun updateSubtreeVariants(
+            p       : @COMP_CLASS@
+            , tmplt   : ListTemplate<@COMP_CLASS@, SmartInsertPlace>
+            , variants: Map<String, FormatSet>
+            ,  context: VariantConstructionContext
+    ): Map<String, FormatSet>  = variants
+
+    protected fun getElementsVariants_new(
+            p: @COMP_CLASS@
+            , context: VariantConstructionContext
+    ): FormatSet = getElementsVariants(p, context, getSeparator_1())
+
+    fun getSeparator_1(): Format = Format.line(", ")
+
+    protected fun getElementsVariants(
+            p: @COMP_CLASS@
+            ,   context: VariantConstructionContext
+            , separator: Format
+    ): FormatSet = getElementsVariants(getList(p), context, { separator })
+
+    override fun getTags(p: @COMP_CLASS@) = setOf(ELEMENTS_TAG)
 }

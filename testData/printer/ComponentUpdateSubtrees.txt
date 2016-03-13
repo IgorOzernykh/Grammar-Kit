@@ -1,4 +1,4 @@
-override protected fun updateSubtreeVariants(
+override fun updateSubtreeVariants(
         p       : @COMP_CLASS@
         , tmplt   : PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>
         , variants: Map<String, FormatSet>

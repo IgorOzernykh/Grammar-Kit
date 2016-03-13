@@ -1,4 +1,4 @@
-override protected fun prepareSubtreeVariants(
+override fun prepareSubtreeVariants(
         p: @COMP_CLASS@
         , context: VariantConstructionContext
 ): Map<String, FormatSet> {

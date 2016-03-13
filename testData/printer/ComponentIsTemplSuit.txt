@@ -1,4 +1,4 @@
-override protected fun isTemplateSuitable(
+override fun isTemplateSuitable(
         p: @COMP_CLASS@
         , tmplt: @TEMPLATE@<@COMP_CLASS@, SmartInsertPlace>
 ): Boolean {

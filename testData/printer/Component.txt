@@ -3,7 +3,7 @@ package @LANG_PACKAGE@.components
 @IMPORT_LIST@
 import @COMP_PACKAGE@.@COMP_CLASS@
 
-public class @NAME_CC@Component(
+class @NAME_CC@Component(
         printer: @LANG@Printer
 ): @LANG@PsiElementComponent<@COMP_CLASS@, SmartInsertPlace, PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>>(printer)
 {

@@ -11,14 +11,14 @@ import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
 
-public class @COMP_CLASS@Component(
+class @COMP_CLASS@Component(
         printer: @LANG@Printer
 ): @LANG@PsiElementComponent<@COMP_CLASS@, SmartInsertPlace, PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>>(printer)
 
 {
     @GET_SUBTREES@
 
-    override public fun getVariants(p: @COMP_CLASS@, context: VariantConstructionContext): FormatSet {
+    override fun getVariants(p: @COMP_CLASS@, context: VariantConstructionContext): FormatSet {
         val list = ArrayList<FormatSet>()
 
         @GET_SUBTREES_VARIANTS@
@@ -27,17 +27,17 @@ public class @COMP_CLASS@Component(
         return list.drop(1).fold(firstElem) { r, e -> r % e }
     }
 
-    override public fun getTmplt(p: @COMP_CLASS@): PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>? {
+    override fun getTmplt(p: @COMP_CLASS@): PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>? {
         return getTemplateFromElement(p)
     }
 
-    override protected fun getNewElement(
+    override fun getNewElement(
             text: String
     ): @COMP_CLASS@? {
         return null
     }
 
-    override protected fun updateSubtreeVariants(
+    override fun updateSubtreeVariants(
             p       : @COMP_CLASS@
             , tmplt   : PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>
             , variants: Map<String, FormatSet>
@@ -46,19 +46,19 @@ public class @COMP_CLASS@Component(
         return variants
     }
 
-    override protected fun prepareSubtreeVariants(
+    override fun prepareSubtreeVariants(
             p: @COMP_CLASS@
             , context: VariantConstructionContext
     ): Map<String, FormatSet> = HashMap()
 
-    override protected fun getTags(p: @COMP_CLASS@): Set<String>  = HashSet()
+    override fun getTags(p: @COMP_CLASS@): Set<String>  = HashSet()
 
-    override protected fun isTemplateSuitable(
+    override fun isTemplateSuitable(
             p: @COMP_CLASS@
             , tmplt: PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>
     ): Boolean {
         return true
     }
 
-    override public fun getTemplateFromElement(newP: @COMP_CLASS@): PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>? = null
+    override fun getTemplateFromElement(newP: @COMP_CLASS@): PsiTemplateGen<@COMP_CLASS@, SmartInsertPlace>? = null
 }
