@@ -52,7 +52,7 @@ public class PrinterGenerator {
   final String componentPackage;
   final Map<BnfRule, List<Subtree>> mySubtreeMap;
   final String myOutputPath;
-  private final String pathToTemplates = "testData/printer/";
+  private final String pathToTemplates = "support/resources/printerGenerator/";
 
   public PrinterGenerator(BnfFile f, String outputPath) {
     myFile = f;
@@ -66,7 +66,7 @@ public class PrinterGenerator {
     myGrammarRoot = myFile.getRules().get(0);
     mySignificantRules = new LinkedHashMap<String, BnfRule>();
     createRuleMap();
-    languageName = myFile.getName().substring(0, myFile.getName().indexOf('.'));
+    languageName = StringUtil.capitalize(myFile.getName().substring(0, myFile.getName().indexOf('.')));
     printerPackage = myFile.findAttributeValue(null, KnownAttribute.PRINTER_PACKAGE, null);
     elementFactoryPath = myFile.findAttributeValue(null, KnownAttribute.FACTORY_CLASS, null);
     fileClass = myFile.findAttributeValue(null, KnownAttribute.FILE_CLASS, null);
@@ -86,7 +86,7 @@ public class PrinterGenerator {
     psiRules.put(myGrammarRoot.getName(), myGrammarRoot);
     for (BnfRule rule : myFile.getRules()) {
       if (!RuleGraphHelper.shouldGeneratePsi(rule, true)) continue;
-      if (ParserGeneratorUtil.Rule.isLeft(rule)) continue;
+      if (ParserGeneratorUtil.Rule.isLeft(rule)) continue; // TODO: check + fake
       String elementType = ParserGeneratorUtil.getElementType(rule, myGenOptions.generateElementCase);
       if (StringUtil.isEmpty(elementType)) continue;
       psiRules.put(rule.getName(), rule);
@@ -383,7 +383,7 @@ public class PrinterGenerator {
     String subtreesMethodsText = "";
     for (String file : files) {
       for (Subtree subtree : subtrees) {
-        subtreesMethodsText += getSubtreeMethodText(subtree, rule, file);
+        subtreesMethodsText += getSubtreeMethodText(subtree, rule, file) + "\n";
       }
     }
     return subtreesMethodsText;
@@ -440,7 +440,7 @@ public class PrinterGenerator {
                            + "ToInsertPlaceMap(newP, insertPlaceMap, negShift)) { return null }\n";
       }
       else {
-        subtreesAddCode += "add" + StringUtil.capitalize(subtree.name) + "ToInsertPlaceMap(newP, insertPlaceMap, negShift)";
+        subtreesAddCode += "add" + StringUtil.capitalize(subtree.name) + "ToInsertPlaceMap(newP, insertPlaceMap, negShift)\n";
       }
     }
 

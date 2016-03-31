@@ -1,0 +1,11 @@
+override fun getNewElement(
+        p: @COMP_CLASS@
+        , text: String
+): @COMP_CLASS@? {
+    try {
+        val newP = printer.createElementFromText(p, text)
+        return newP as? @COMP_CLASS@
+    } catch (e: Exception) {
+        return null
+    }
+}
