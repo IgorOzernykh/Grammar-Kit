@@ -379,12 +379,14 @@ public class PrinterGenerator {
 
   private String getSubtreesMethodsText(BnfRule rule) {
     List<Subtree> subtrees = getSubtreesForRule(rule);
-    String[] files = { "ComponentAddSubtree.txt", "ComponentGetSubtree.txt", "ComponentPrepareSubtree.txt" };
+    final String[] files =
+      { "ComponentAddSubtree.txt", "ComponentGetSubtree.txt", "ComponentPrepareSubtree.txt", "SEComponentGetSubtree.txt" };
     String subtreesMethodsText = "";
-    for (String file : files) {
-      for (Subtree subtree : subtrees) {
-        subtreesMethodsText += getSubtreeMethodText(subtree, rule, file) + "\n";
-      }
+    for (Subtree subtree : subtrees) {
+      subtreesMethodsText +=
+        getSubtreeMethodText(subtree, rule, files[0]) + "\n" +
+        getSubtreeMethodText(subtree, rule, files[2]) + "\n" +
+        getSubtreeMethodText(subtree, rule, !subtree.hasSeveralElements ? files[1] : files[3]) + "\n";
     }
     return subtreesMethodsText;
   }
@@ -490,7 +492,7 @@ public class PrinterGenerator {
     RuleGraphHelper.Cardinality cardinality = methodInfo.cardinality;
     if (methodInfo.rule == null && methodInfo.name.isEmpty()) { return null; }  // it is a token
     boolean many = cardinality.many();
-    //if (many) return null; // TODO: Wrong
+
     String subtreeName = getBeautifulName(methodInfo.name);
     String getMethod = StringUtil.decapitalize(ParserGeneratorUtil.toIdentifier(methodInfo.name, ""));
     if (methodInfo.cardinality.many()) {
@@ -498,9 +500,9 @@ public class PrinterGenerator {
     }
     boolean isRequired = cardinality == RuleGraphHelper.Cardinality.REQUIRED;
     boolean isEverywhereSuitable = true;  // TODO: isEverywhereSuitable
-    boolean hasSeveralElements = false;  // TODO: hasSeveralElements
+    //boolean hasSeveralElements = false;  // TODO: hasSeveralElements
 
-    return new Subtree(subtreeName, getMethod, isRequired, isEverywhereSuitable, hasSeveralElements);
+    return new Subtree(subtreeName, getMethod, isRequired, isEverywhereSuitable, many);//hasSeveralElements);
   }
 
   private Subtree genType3(BnfRule startRule, RuleMethodsHelper.MethodInfo methodInfo) {
