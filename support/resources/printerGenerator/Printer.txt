@@ -3,7 +3,8 @@ package @LANG_PACKAGE@.printer
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
 import com.intellij.util.IncorrectOperationException
-import @LANG_PACKAGE@.@FACTORY@
+//import @LANG_PACKAGE@.@FACTORY@
+import @FACTORY_CLASS@
 import @LANG_PACKAGE@.@FILE_CLASS@
 import @COMP_PACKAGE@.*
 import @LANG_PACKAGE@.components.*

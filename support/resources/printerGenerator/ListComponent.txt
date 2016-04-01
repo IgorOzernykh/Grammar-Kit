@@ -1,7 +1,6 @@
 package @LANG_PACKAGE@.components
 
 import com.intellij.psi.PsiComment
-import @FACTORY_CLASS@
 import @LANG_PACKAGE@.printer.@LANG@Printer
 import @COMP_PACKAGE@.@COMP_CLASS@
 import @LANG_PACKAGE@.templateBase.@LANG@PsiElementComponent
@@ -64,7 +63,7 @@ class @NAME_CC@Component(
 
     fun getNormalizedElement(p: @COMP_CLASS@): @COMP_CLASS@? {
         val normalizedText = p.deleteSpaces()
-        val element = getNewElement(normalizedText)
+        val element = getNewElement(p, normalizedText)
         return element
     }
 

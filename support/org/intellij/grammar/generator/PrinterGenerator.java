@@ -142,7 +142,7 @@ public class PrinterGenerator {
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
     replaceMap.put("@COMP_PACKAGE@", componentPackage);
     replaceMap.put("@FILE_CLASS@", filePsiClass);
-    replaceMap.put("@FACTORY@", factoryName);
+    replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
     replaceMap.put("@FILE_COMP_PASC@", StringUtil.decapitalize(filePsiClass) + "Component");
     replaceMap.put("@FILE_COMP@", filePsiClass + "Component");
     replaceMap.put("@COMP_DECLARATION@", compDeclaration);
@@ -220,7 +220,7 @@ public class PrinterGenerator {
     String templateContent = readTemplate("ListComponent.txt");
     Map<String, String> replaceMap = new HashMap<String, String>();
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
-    replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
+    //replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
     replaceMap.put("@LANG@", languageName);
     replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
     replaceMap.put("@COMP_PACKAGE@", componentPackage);
@@ -315,7 +315,7 @@ public class PrinterGenerator {
   private String getImportListText() {
     String templateContent = readTemplate("ImportList.txt");
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@FACTORY_CLASS@", elementFactoryPath,
+      //"@FACTORY_CLASS@", elementFactoryPath,
       "@LANG_PACKAGE@", printerPackage,
       "@LANG@", languageName
     );

@@ -1,4 +1,3 @@
-import @FACTORY_CLASS@
 import @LANG_PACKAGE@.printer.@LANG@Printer
 import @LANG_PACKAGE@.templateBase.@LANG@PsiElementComponent
 import org.jetbrains.format.FormatSet

@@ -32,7 +32,8 @@ class @COMP_CLASS@Component(
     }
 
     override fun getNewElement(
-            text: String
+            p: @COMP_CLASS@
+            , text: String
     ): @COMP_CLASS@? {
         return null
     }
