@@ -52,7 +52,7 @@ class @LANG@Printer(
         val variants: FormatSet =
             when(p) {
                 @GET_VARIANTS@
-                is @FILE_CLASS@ -> @FILE_COMP_PASC@.getVariants(p, context)
+                is @FILE_CLASS_NAME@ -> @FILE_COMP_PASC@.getVariants(p, context)
 
                 else -> {
                     getEmptySet()

@@ -53,6 +53,7 @@ public class PrinterGenerator {
   final String componentPackage;
   final Map<BnfRule, List<Subtree>> mySubtreeMap;
   final String myOutputPath;
+  final String fileSubtreesAttr;
   private final String pathToTemplates = "support/resources/printerGenerator/";
 
   public PrinterGenerator(BnfFile f, String outputPath) {
@@ -80,7 +81,22 @@ public class PrinterGenerator {
       elementFactoryClassName = "";
     }
     componentPackage = myFile.findAttributeValue(null, KnownAttribute.PSI_PACKAGE, null);
+    fileSubtreesAttr = myFile.findAttributeValue(null, KnownAttribute.FILE_SUBTREES, null);
     mySubtreeMap = createSubtreeMap();
+  }
+
+  private List<Subtree> getFileSubtrees(String fileSubtreesAttr) {
+    if (fileSubtreesAttr == null) return null;
+    String[] subtreesStr = fileSubtreesAttr.split(",");
+    List<Subtree> subtrees = new ArrayList<Subtree>();
+    for (String subtreeStr : subtreesStr) {
+      String name = subtreeStr.replaceAll("\\s|\\*|!", "");
+      String getMethod = StringUtil.capitalize(name);
+      boolean isRequired = subtreeStr.contains("!");
+      boolean hasSeveralElements = subtreeStr.contains("*");
+      subtrees.add(new Subtree(name, getMethod, isRequired, true, hasSeveralElements));
+    }
+    return subtrees;
   }
 
   private Map<String, BnfRule> createRuleMap() {
@@ -143,6 +159,7 @@ public class PrinterGenerator {
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
     replaceMap.put("@COMP_PACKAGE@", componentPackage);
     replaceMap.put("@FILE_CLASS@", fileClass);
+    replaceMap.put("@FILE_CLASS_NAME@", StringUtil.getShortName(fileClass));
     replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
     replaceMap.put("@FILE_COMP_PASC@", StringUtil.decapitalize(fileClassName) + "Component");
     replaceMap.put("@FILE_COMP@", fileClassName + "Component");
@@ -238,6 +255,7 @@ public class PrinterGenerator {
     Map<String, String> replaceMap = new HashMap<String, String>();
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
     replaceMap.put("@FILE_CLASS@", fileClass);
+    //replaceMap.put("@FILE_CLASS_NAME@", StringUtil.getShortName(fileClass));
     replaceMap.put("@LANG@", languageName);
     String componentClass = StringUtil.getShortName(fileClass);
     replaceMap.put("@COMP_CLASS@", componentClass);
@@ -350,10 +368,10 @@ public class PrinterGenerator {
   }
 
   private String getFileGetSubtreesText(Subtree subtree) {
-    String templateContent = readTemplate("ComponentGetSubtree.txt");
+    String templateContent = readTemplate(!subtree.hasSeveralElements? "ComponentGetSubtree.txt" : "SEComponentGetSubtree.txt");
     Map<String, String> replaceMap = ImmutableMap.of(
       "@NAME_CC@", StringUtil.capitalize(subtree.name),
-      "@COMP_CLASS@", fileClass,
+      "@COMP_CLASS@", StringUtil.getShortName(fileClass),
       "@NAME@", subtree.name,
       "@SUBTREE_GET@", subtree.getMethod
     );
@@ -455,6 +473,9 @@ public class PrinterGenerator {
   }
 
   private List<Subtree> getSubtreesForRule(BnfRule rule) {
+    if (rule.equals(myGrammarRoot)) {
+      return getFileSubtrees(fileSubtreesAttr);
+    }
     return mySubtreeMap.get(rule);
   }
 

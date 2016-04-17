@@ -68,6 +68,7 @@ public class KnownAttribute<T> {
   public static final KnownAttribute<String>       FACTORY_CLASS             = create(true, String.class, "factoryClass", null);
   public static final KnownAttribute<String>       FILE_CLASS                = create(true, String.class, "fileClass", null);
   public static final KnownAttribute<String>       FILE_EXTENSION            = create(true, String.class, "fileExtension", null);
+  public static final KnownAttribute<String>       FILE_SUBTREES             = create(true, String.class, "fileSubtrees", null);
 
 
   public static final KnownAttribute<String>       EXTENDS                   = create(false, String.class, "extends", BnfConstants.AST_WRAPPER_PSI_ELEMENT_CLASS);
