@@ -59,7 +59,7 @@ class @NAME_CC@Component(
             return ListTemplate(p, insertPlaceMap, contentRelation.first, contentRelation.second)
         }
 
-    protected fun getList(p: @COMP_CLASS@) = p.@SUBTREE_GET@.toList() ?: listOf()
+    protected fun getList(p: @COMP_CLASS@) = p.get@SUBTREE_GET@().toList() ?: listOf()
 
     fun getNormalizedElement(p: @COMP_CLASS@): @COMP_CLASS@? {
         val normalizedText = p.deleteSpaces()

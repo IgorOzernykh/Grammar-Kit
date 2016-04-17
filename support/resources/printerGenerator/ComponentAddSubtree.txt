@@ -3,7 +3,7 @@ private fun add@NAME_CC@ToInsertPlaceMap(
         , insertPlaceMap: MutableMap<String, SmartInsertPlace>
         , delta: Int
 ): Boolean {
-    val @NAME@ = p.@SUBTREE_GET@
+    val @NAME@ = p.get@SUBTREE_GET@()
     val @NAME@TextRange = @NAME@?.getTextRange() ?: return false
 
     val text = p.containingFile?.text ?: return false

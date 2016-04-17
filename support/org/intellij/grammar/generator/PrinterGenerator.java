@@ -46,6 +46,7 @@ public class PrinterGenerator {
   final String printerPackage;
   final String elementFactoryPath;
   final String fileClass;
+  final String fileClassName;
   final String fileExtension;
   final String psiClassPrefix;
   final String elementFactoryClassName;
@@ -70,6 +71,7 @@ public class PrinterGenerator {
     printerPackage = myFile.findAttributeValue(null, KnownAttribute.PRINTER_PACKAGE, null);
     elementFactoryPath = myFile.findAttributeValue(null, KnownAttribute.FACTORY_CLASS, null);
     fileClass = myFile.findAttributeValue(null, KnownAttribute.FILE_CLASS, null);
+    fileClassName = StringUtil.getShortName(fileClass);
     fileExtension = myFile.findAttributeValue(null, KnownAttribute.FILE_EXTENSION, null);
     psiClassPrefix = myFile.findAttributeValue(null, KnownAttribute.PSI_CLASS_PREFIX, null);
     if (elementFactoryPath != null) {
@@ -111,7 +113,6 @@ public class PrinterGenerator {
     // final String componentPackage = printerPackage + ".components";
     String langPrinterPackage = printerPackage + ".printer";
     String psiElemComponentPackage = printerPackage + ".templateBase";
-    final String filePsiClass = languageName + "File";
     final String factoryName = languageName + "ElementFactory";
     String compDeclaration = "";
     String applyTmplt = "";
@@ -141,10 +142,10 @@ public class PrinterGenerator {
     replaceMap.put("@LANG@", languageName);
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
     replaceMap.put("@COMP_PACKAGE@", componentPackage);
-    replaceMap.put("@FILE_CLASS@", filePsiClass);
+    replaceMap.put("@FILE_CLASS@", fileClass);
     replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
-    replaceMap.put("@FILE_COMP_PASC@", StringUtil.decapitalize(filePsiClass) + "Component");
-    replaceMap.put("@FILE_COMP@", filePsiClass + "Component");
+    replaceMap.put("@FILE_COMP_PASC@", StringUtil.decapitalize(fileClassName) + "Component");
+    replaceMap.put("@FILE_COMP@", fileClassName + "Component");
     replaceMap.put("@COMP_DECLARATION@", compDeclaration);
     replaceMap.put("@APPLY_TEMPLATE@", applyTmplt);
     replaceMap.put("@GET_VARIANTS@", getVariants);
@@ -418,11 +419,11 @@ public class PrinterGenerator {
     String getTagsCode = "";
     for (Subtree subtree : getSubtreesForRule(rule)) {
       if (!subtree.hasSeveralElements) {
-        getTagsCode += "if (p." + subtree.getMethod + " != null) { set.add("
+        getTagsCode += "if (p.get" + subtree.getMethod + "() != null) { set.add("
                        + subtree.name.toUpperCase() + "_TAG) }\n";
       } else {
-        getTagsCode += "if (p." + subtree.getMethod + " != null && !p."
-                       + subtree.getMethod + ".isEmpty()) { set.add(" + subtree.name.toUpperCase() + "_TAG) } \n";
+        getTagsCode += "if (p.get" + subtree.getMethod + "() != null && !p.get"
+                       + subtree.getMethod + "().isEmpty()) { set.add(" + subtree.name.toUpperCase() + "_TAG) } \n";
       }
     }
     Map<String, String> replaceMap = new HashMap<String, String>();
@@ -472,13 +473,6 @@ public class PrinterGenerator {
           break;
         case 3:
           Subtree subtree3 = genType3(rule, methodInfo);
-          if (subtree3 == null) { continue; }
-          for (Subtree subtree : subtrees) {
-            if (subtree3.ruleName != null && subtree.name.equals(subtree3.ruleName)) {
-              subtrees.remove(subtree);
-              break;
-            }
-          }
           subtrees.add(subtree3);
           break;
         default:
@@ -494,7 +488,7 @@ public class PrinterGenerator {
     boolean many = cardinality.many();
 
     String subtreeName = getBeautifulName(methodInfo.name);
-    String getMethod = StringUtil.decapitalize(ParserGeneratorUtil.toIdentifier(methodInfo.name, ""));
+    String getMethod = ParserGeneratorUtil.toIdentifier(methodInfo.name, "");
     if (methodInfo.cardinality.many()) {
       getMethod += "List";
     }
@@ -505,12 +499,15 @@ public class PrinterGenerator {
     return new Subtree(subtreeName, getMethod, isRequired, isEverywhereSuitable, many);//hasSeveralElements);
   }
 
+  //private List<Subtree>
   private Subtree genType3(BnfRule startRule, RuleMethodsHelper.MethodInfo methodInfo) {
+    //List<Subtree> subtrees = new ArrayList<Subtree>();
     BnfRule targetRule = startRule;
     RuleGraphHelper.Cardinality cardinality = RuleGraphHelper.Cardinality.REQUIRED;
     String context = "";
     String [] splitPath = methodInfo.path.split("/");
     boolean totalNullable = false;
+
     for (int i = 0; i < splitPath.length; i++) {
       String pathElement = splitPath[i];
       boolean last = i == splitPath.length - 1;
@@ -530,9 +527,14 @@ public class PrinterGenerator {
         return null;
       }
       boolean many = targetInfo.cardinality.many();
-      String className = StringUtil.getShortName(
-        targetInfo.rule == null ? BnfConstants.PSI_ELEMENT_CLASS : psiClassPrefix + getBeautifulName(methodInfo.name));
-      String type = (many ? "List<" : "") + className + (many ? ">" : "");
+      //String className = StringUtil.getShortName(
+      //  targetInfo.rule == null ? BnfConstants.PSI_ELEMENT_CLASS : psiClassPrefix + getBeautifulName(methodInfo.name));
+      //String type = (many ? "List<" : "") + className + (many ? ">" : "");
+      //if (StringUtil.isNotEmpty(targetInfo.name)) {
+      //  subtreeGet = subtreeName + (targetInfo.cardinality.many() ? "List" : "");
+      //} else {
+      //  return null; // TODO: check
+      //}
       targetRule = targetInfo.rule;
       cardinality = targetInfo.cardinality;
       totalNullable |= cardinality.optional();
@@ -546,18 +548,14 @@ public class PrinterGenerator {
         totalNullable |= cardinality.optional();
       }
     }
-
     String subtreeName = StringUtil.decapitalize(getBeautifulName(methodInfo.name));
-    if (cardinality.many()) {
-      subtreeName += "List";
-    }
+    String subtreeGet = ParserGeneratorUtil.toIdentifier(methodInfo.name, "");
     boolean isRequired = !cardinality.many() && cardinality == RuleGraphHelper.Cardinality.REQUIRED && !totalNullable;
-    boolean hasSeveralElements = false;  // cardinality.many();  // TODO: hasSeveralElements
+    boolean hasSeveralElements = false;  // TODO: hasSeveralElements
     boolean isEverywhereSuitable = true; // TODO: isEverywhereSuitable
-
-    return new Subtree(subtreeName, subtreeName, isRequired, isEverywhereSuitable, hasSeveralElements,
+    return new Subtree(subtreeName, StringUtil.capitalize(subtreeGet), isRequired, isEverywhereSuitable, hasSeveralElements,
                        ParserGeneratorUtil.toIdentifier(targetRule.getName(), ""));
-  }
+    }
 
   private Map<BnfRule, List<Subtree>> createSubtreeMap() {
     Map<BnfRule, List<Subtree>> map = new HashMap<BnfRule, List<Subtree>>();

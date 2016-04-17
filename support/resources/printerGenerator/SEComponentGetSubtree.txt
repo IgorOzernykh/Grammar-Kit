@@ -2,7 +2,7 @@ private fun get@NAME_CC@Variants(
         p: @COMP_CLASS@
         , context: VariantConstructionContext
 ): FormatSet {
-    val @NAME@ = p.@SUBTREE_GET@
+    val @NAME@ = p.get@SUBTREE_GET@()
     if (@NAME@ == null || @NAME@.isEmpty()) { return printer.getEmptySet() }
 
     val @NAME@Variants = @NAME@.map { e -> printer.getVariants(e, context) }

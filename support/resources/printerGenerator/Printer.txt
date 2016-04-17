@@ -5,7 +5,7 @@ import com.intellij.psi.*
 import com.intellij.util.IncorrectOperationException
 //import @LANG_PACKAGE@.@FACTORY@
 import @FACTORY_CLASS@
-import @LANG_PACKAGE@.@FILE_CLASS@
+import @FILE_CLASS@
 import @COMP_PACKAGE@.*
 import @LANG_PACKAGE@.components.*
 import org.jetbrains.format.FormatSet
@@ -73,10 +73,11 @@ class @LANG@Printer(
     }
 
     override fun createElementFromText(p: PsiElement, text: String): PsiElement? {
-        val factory = @FACTORY@(getProject()) ?: return null
+        /*val factory = @FACTORY@(getProject()) ?: return null*/
+        /* Write your code  here */
 
         return when (p) {
-            @FACTORY_CREATE@
+            /*@FACTORY_CREATE@*/
             else -> null
         }
     }
