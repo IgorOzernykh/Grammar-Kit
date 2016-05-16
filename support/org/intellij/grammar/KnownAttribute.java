@@ -86,6 +86,7 @@ public class KnownAttribute<T> {
 
   public static final KnownAttribute<ListValue>    METHODS                   = create(false, ListValue.class, "methods", EMPTY_LIST);
   public static final KnownAttribute<ListValue>    TOKENS                    = create(true, ListValue.class, "tokens", EMPTY_LIST);
+  public static final KnownAttribute<String>       LIST_SEP                  = create(false, String.class, "listSep", ",");
 
   private final boolean myGlobal;
   private final String myName;

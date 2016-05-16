@@ -239,6 +239,7 @@ public class PrinterGenerator {
     Map<String, String> replaceMap = new HashMap<String, String>();
     replaceMap.put("@LANG_PACKAGE@", printerPackage);
     //replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
+    replaceMap.put("@LIST_SEP@", ParserGeneratorUtil.getAttribute(rule, KnownAttribute.LIST_SEP));
     replaceMap.put("@LANG@", languageName);
     replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
     replaceMap.put("@COMP_PACKAGE@", componentPackage);
@@ -494,6 +495,18 @@ public class PrinterGenerator {
           break;
         case 3:
           Subtree subtree3 = genType3(rule, methodInfo);
+          if (subtree3 == null) continue;
+          if (subtree3.ruleName != null) {
+            int i = 0;
+            int j = subtrees.size();
+            while (i < j) {
+              if (subtree3.ruleName.equals(subtrees.get(i).name)) {
+                subtrees.remove(i);
+                j--;
+              }
+              i++;
+            }
+          }
           subtrees.add(subtree3);
           break;
         default:

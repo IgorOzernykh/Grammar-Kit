@@ -87,7 +87,7 @@ class @NAME_CC@Component(
             , context: VariantConstructionContext
     ): FormatSet = getElementsVariants(p, context, getSeparator_1())
 
-    fun getSeparator_1(): Format = Format.line(", ")
+    fun getSeparator_1(): Format = Format.line("@LIST_SEP@ ")
 
     protected fun getElementsVariants(
             p: @COMP_CLASS@

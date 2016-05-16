@@ -1,5 +1,6 @@
-val @NAME@Variants = get@NAME_CC@Variants(p, context)
-if (@NAME@Variants != null) {
-    if (@NAME@Variants.isEmpty()) { return printer.getEmptySet() }
-    list.add(@NAME@Variants)
-}
+  val @NAME@Variants = get@NAME_CC@Variants(p, context)
+  if (@NAME@Variants != null) {
+    if (!@NAME@Variants.isEmpty()) {
+      list.add(@NAME@Variants)
+    }
+  }
