@@ -18,6 +18,7 @@ package org.intellij.grammar.generator;
 
 import com.google.common.collect.ImmutableMap;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
@@ -107,6 +108,11 @@ public class PrinterGenerator {
       if (ParserGeneratorUtil.Rule.isLeft(rule)) continue; // TODO: check + fake
       String elementType = ParserGeneratorUtil.getElementType(rule, myGenOptions.generateElementCase);
       if (StringUtil.isEmpty(elementType)) continue;
+      //BnfRule topSuperRule = ParserGeneratorUtil.getTopSuperRule(myFile, rule);
+      //if (topSuperRule != null && !topSuperRule.equals(rule)) {
+      //  if (ParserGeneratorUtil.Rule.isFake(topSuperRule))
+      //    continue;
+      //}
       psiRules.put(rule.getName(), rule);
     }
     myRuleMethodsHelper.buildMaps(psiRules.values());
@@ -152,7 +158,7 @@ public class PrinterGenerator {
       countTemplates += /*"+ " + */psiComponentName + ".getTemplates().size + \n";
       getTmplt += "is " + psiClassName + " -> " + psiComponentName + ".getTmplt(p)\n";
     }
-    countTemplates += " + 0";
+    countTemplates += " + 0"; //TODO: remove +
 
     final Map<String, String> replaceMap = new HashMap<String, String>();
     replaceMap.put("@LANG@", languageName);
@@ -483,7 +489,16 @@ public class PrinterGenerator {
   private List<Subtree> createSubtreesList(BnfRule rule) {
     // TODO: get subtrees
     List<Subtree> subtrees = new ArrayList<Subtree>();
-    for (RuleMethodsHelper.MethodInfo methodInfo : myRuleMethodsHelper.getFor(rule)) {
+    Collection<RuleMethodsHelper.MethodInfo> methodInfoList = myRuleMethodsHelper.getFor(rule);
+    BnfRule topSuperRule = ParserGeneratorUtil.getTopSuperRule(myFile, rule);
+    if (topSuperRule != null && ParserGeneratorUtil.Rule.isFake(topSuperRule)) {
+      for (RuleMethodsHelper.MethodInfo methodInfo : myRuleMethodsHelper.getFor(topSuperRule)) {
+        if (methodInfo.type == 3) {
+          methodInfoList.add(methodInfo);
+        }
+      }
+    }
+    for (RuleMethodsHelper.MethodInfo methodInfo : methodInfoList) {
       if (methodInfo.name.isEmpty()) continue;
       switch (methodInfo.type) {
         case 1:
@@ -513,6 +528,23 @@ public class PrinterGenerator {
           break;
       }
     }
+    /*BnfRule topSuperRule = ParserGeneratorUtil.getTopSuperRule(myFile, rule);
+    if (topSuperRule != null && ParserGeneratorUtil.Rule.isFake(topSuperRule)) {
+      for (RuleMethodsHelper.MethodInfo methodInfo : myRuleMethodsHelper.getFor(topSuperRule)) {
+        if (methodInfo.type != 3) continue;
+        Subtree subtree = genType3(rule, methodInfo);
+        if (subtree == null) continue;
+        boolean containsSubtree = false;
+        for (Subtree subtree1 : subtrees) {
+          if (subtree.name == subtree1.name) {
+            containsSubtree = true;
+            break;
+          }
+        }
+        if (containsSubtree) continue;
+        subtrees.add(subtree);
+      }
+    }*/
     return subtrees;
   }
 
