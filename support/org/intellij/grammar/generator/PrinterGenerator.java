@@ -147,14 +147,9 @@ public class PrinterGenerator {
     psiRules.put(myGrammarRoot.getName(), myGrammarRoot);
     for (BnfRule rule : myFile.getRules()) {
       if (!RuleGraphHelper.shouldGeneratePsi(rule, true)) continue;
-      if (ParserGeneratorUtil.Rule.isLeft(rule)) continue; // TODO: check + fake
+      if (ParserGeneratorUtil.Rule.isLeft(rule)) continue;
       String elementType = ParserGeneratorUtil.getElementType(rule, myGenOptions.generateElementCase);
       if (StringUtil.isEmpty(elementType)) continue;
-      //BnfRule topSuperRule = ParserGeneratorUtil.getTopSuperRule(myFile, rule);
-      //if (topSuperRule != null && !topSuperRule.equals(rule)) {
-      //  if (ParserGeneratorUtil.Rule.isFake(topSuperRule))
-      //    continue;
-      //}
       psiRules.put(rule.getName(), rule);
     }
     myRuleMethodsHelper.buildMaps(psiRules.values());
@@ -230,7 +225,6 @@ public class PrinterGenerator {
   }
 
   public void generatePrinterFiles() {
-    // TODO: fix resources path
     try {
       String genPath = myOutputPath;
       FileUtil.writeToFile(new File(genPath + "templateBase/" + languageName + "PsiElementComponent.kt")
@@ -253,7 +247,7 @@ public class PrinterGenerator {
       }
     }
     catch (IOException e) {
-      LOG.error(e); // TODO: provide some info
+      LOG.error(e);
     }
   }
 
@@ -347,7 +341,7 @@ public class PrinterGenerator {
       this(name, getMethod, isRequired, isEverywhereSuitable, hasSeveralElements);
       this.ruleName = ruleName;
     }
-    public String name;  // TODO: decapitalize
+    public String name;
     public String getMethod;
     public boolean isRequired;
     public boolean isEverywhereSuitable;
@@ -525,7 +519,6 @@ public class PrinterGenerator {
   }
 
   private List<Subtree> createSubtreesList(BnfRule rule) {
-    // TODO: get subtrees
     List<Subtree> subtrees = new ArrayList<Subtree>();
     Collection<RuleMethodsHelper.MethodInfo> methodInfoList = myRuleMethodsHelper.getFor(rule);
     BnfRule topSuperRule = ParserGeneratorUtil.getTopSuperRule(myFile, rule);
@@ -594,7 +587,6 @@ public class PrinterGenerator {
 
     for (int i = 0; i < splitPath.length; i++) {
       String pathElement = splitPath[i];
-      boolean last = i == splitPath.length - 1;
       int indexStart = pathElement.indexOf('[');
       int indexEnd = indexStart > 0 ? pathElement.lastIndexOf(']') : -1;
 
@@ -610,15 +602,6 @@ public class PrinterGenerator {
           i > 0 && StringUtil.isEmpty(targetInfo.name) && targetInfo.rule == null) {
         return null;
       }
-      boolean many = targetInfo.cardinality.many();
-      //String className = StringUtil.getShortName(
-      //  targetInfo.rule == null ? BnfConstants.PSI_ELEMENT_CLASS : psiClassPrefix + getBeautifulName(methodInfo.name));
-      //String type = (many ? "List<" : "") + className + (many ? ">" : "");
-      //if (StringUtil.isNotEmpty(targetInfo.name)) {
-      //  subtreeGet = subtreeName + (targetInfo.cardinality.many() ? "List" : "");
-      //} else {
-      //  return null; // TODO: check
-      //}
       targetRule = targetInfo.rule;
       cardinality = targetInfo.cardinality;
       totalNullable |= cardinality.optional();
