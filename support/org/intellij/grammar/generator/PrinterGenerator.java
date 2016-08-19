@@ -41,6 +41,48 @@ public class PrinterGenerator {
   final GenOptions myGenOptions;
   final RuleMethodsHelper myRuleMethodsHelper;
 
+  // Placeholders
+  final private String LANG = "@LANG@";
+  final private String NAME_CC = "@NAME_CC";
+  final private String LANG_PACKAGE = "@LANG_PACKAGE@";
+  final private String COMP_PACKAGE = "@COMP_PACKAGE@";
+  final private String FILE_CLASS = "@FILE_CLASS@";
+  final private String FILE_CLASS_NAME = "@FILE_CLASS_NAME@";
+  final private String FILE_COMP_PASC = "@FILE_COMP_PASC@";
+  final private String FILE_COMP = "@FILE_COMP@";
+  final private String COMP_DECLARATION = "@COMP_DECLARATION@";
+  final private String APPLY_TEMPLATE = "@APPLY_TEMPLATE@";
+  final private String GET_VARIANTS = "@GET_VARIANTS@";
+  final private String GET_SAVE_TEMPLATE = "@GET_SAVE_TEMPLATE@";
+  final private String FACTORY_CREATE = "@FACTORY_CREATE@";
+  final private String COUNT_TEMPLATES = "@COUNT_TEMPLATES@";
+  final private String GET_TMPLT = "@GET_TMPLT@";
+  final private String FACTORY_CLASS = "@FACTORY_CLASS@";
+  final private String IMPORT_LIST = "@IMPORT_LIST@";
+  final private String COMP_CLASS = "@COMP_CLASS@";
+  final private String DECL_TAGS = "@DECL_TAGS@";
+  final private String GEN_SUBTREES = "@GEN_SUBTREES@";
+  final private String GET_NEW_ELEM = "@GET_NEW_ELEM@";
+  final private String PREPARE_SUBTREES = "@PREPARE_SUBTREES@";
+  final private String UPDATE_SUBTREES = "@UPDATE_SUBTREES@";
+  final private String GET_TAGS = "@GET_TAGS@";
+  final private String IS_TEMPL_SUIT = "@IS_TEMPL_SUIT@";
+  final private String GET_TEMPLATE = "@GET_TEMPLATE@";
+  final private String LIST_SEP = "@LIST_SEP@";
+  final private String SUBTREE_GET = "@SUBTREE_GET@";
+  final private String GET_SUBTREES = "@GET_SUBTREES@";
+  final private String GET_SUBTREES_VARIANTS = "@GET_SUBTREES_VARIANTS@";
+  final private String ADD_SUBTREES = "@ADD_SUBTREES@";
+  final private String PREP_SUBTREES = "@PREP_SUBTREES@";
+  final private String NAME = "@NAME@";
+  final private String NAME_CAP = "@NAME_CAP@";
+  final private String EVERYWHERE_SUIT = "@EVERYWHERE_SUIT@";
+  final private String ELEMENT_FACTORY = "@ELEMENT_FACTORY@";
+  final private String FROM_TEXT = "@FROM_TEXT@";
+  final private String TEMPLATE = "@TEMPLATE@";
+  final private String TEMPL_SUIT = "@TEMPL_SUIT@";
+
+
   final Map<String, BnfRule> mySignificantRules;
   final BnfRule myGrammarRoot;
   final String languageName;
@@ -132,10 +174,6 @@ public class PrinterGenerator {
   }
 
   private String getPrinterText() {
-    // final String componentPackage = printerPackage + ".components";
-    String langPrinterPackage = printerPackage + ".printer";
-    String psiElemComponentPackage = printerPackage + ".templateBase";
-    final String factoryName = languageName + "ElementFactory";
     String compDeclaration = "";
     String applyTmplt = "";
     String getVariants = "";
@@ -158,24 +196,24 @@ public class PrinterGenerator {
       countTemplates += /*"+ " + */psiComponentName + ".getTemplates().size + \n";
       getTmplt += "is " + psiClassName + " -> " + psiComponentName + ".getTmplt(p)\n";
     }
-    countTemplates += " + 0"; //TODO: remove +
+    countTemplates += " + 0";
 
     final Map<String, String> replaceMap = new HashMap<String, String>();
-    replaceMap.put("@LANG@", languageName);
-    replaceMap.put("@LANG_PACKAGE@", printerPackage);
-    replaceMap.put("@COMP_PACKAGE@", componentPackage);
-    replaceMap.put("@FILE_CLASS@", fileClass);
-    replaceMap.put("@FILE_CLASS_NAME@", StringUtil.getShortName(fileClass));
-    replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
-    replaceMap.put("@FILE_COMP_PASC@", StringUtil.decapitalize(fileClassName) + "Component");
-    replaceMap.put("@FILE_COMP@", fileClassName + "Component");
-    replaceMap.put("@COMP_DECLARATION@", compDeclaration);
-    replaceMap.put("@APPLY_TEMPLATE@", applyTmplt);
-    replaceMap.put("@GET_VARIANTS@", getVariants);
-    replaceMap.put("@GET_SAVE_TEMPLATE@", getSaveTemplate);
-    replaceMap.put("@FACTORY_CREATE@", factoryCreate);
-    replaceMap.put("@COUNT_TEMPLATES@", countTemplates);
-    replaceMap.put("@GET_TMPLT@", getTmplt);
+    replaceMap.put(LANG, languageName);
+    replaceMap.put(LANG_PACKAGE, printerPackage);
+    replaceMap.put(COMP_PACKAGE, componentPackage);
+    replaceMap.put(FILE_CLASS, fileClass);
+    replaceMap.put(FILE_CLASS_NAME, StringUtil.getShortName(fileClass));
+    replaceMap.put(FACTORY_CLASS, elementFactoryPath);
+    replaceMap.put(FILE_COMP_PASC, StringUtil.decapitalize(fileClassName) + "Component");
+    replaceMap.put(FILE_COMP, fileClassName + "Component");
+    replaceMap.put(COMP_DECLARATION, compDeclaration);
+    replaceMap.put(APPLY_TEMPLATE, applyTmplt);
+    replaceMap.put(GET_VARIANTS, getVariants);
+    replaceMap.put(GET_SAVE_TEMPLATE, getSaveTemplate);
+    replaceMap.put(FACTORY_CREATE, factoryCreate);
+    replaceMap.put(COUNT_TEMPLATES, countTemplates);
+    replaceMap.put(GET_TMPLT, getTmplt);
 
     String templateContent = readTemplate("Printer.txt");
 
@@ -184,8 +222,8 @@ public class PrinterGenerator {
 
   private String getPsiElementComponentText() {
     final Map<String, String> replaceMap = ImmutableMap.of(
-      "@LANG_PACKAGE@", printerPackage,
-      "@LANG@"        , languageName
+      LANG_PACKAGE, printerPackage,
+      LANG        , languageName
     );
     String templateContent = readTemplate("PsiElementComponent.txt");
     return replaceTemplates(templateContent, replaceMap);
@@ -222,20 +260,20 @@ public class PrinterGenerator {
   private String getCommonComponentText(BnfRule rule) {
     String templateContent = readTemplate("Component.txt");
     Map<String, String> replaceMap = new HashMap<String, String>();
-    replaceMap.put("@LANG_PACKAGE@", printerPackage);
-    replaceMap.put("@IMPORT_LIST@", getImportListText());
-    replaceMap.put("@COMP_PACKAGE@", componentPackage);
-    replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
-    replaceMap.put("@NAME_CC@", getBeautifulName(rule.getName()));
-    replaceMap.put("@LANG@", languageName);
-    replaceMap.put("@DECL_TAGS@", getTagsDeclaration(rule));
-    replaceMap.put("@GEN_SUBTREES@", getSubtreesMethodsText(rule));
-    replaceMap.put("@GET_NEW_ELEM@", getGetNewElementText(rule));
-    replaceMap.put("@PREPARE_SUBTREES@", getPrepareSubtreesText(rule));
-    replaceMap.put("@UPDATE_SUBTREES@", getUpdateSubtreesText(rule));
-    replaceMap.put("@GET_TAGS@", getGetTagsText(rule));
-    replaceMap.put("@IS_TEMPL_SUIT@", getIsTemplateSuitableText(rule));
-    replaceMap.put("@GET_TEMPLATE@", getGetTemplateText(rule));
+    replaceMap.put(LANG_PACKAGE, printerPackage);
+    replaceMap.put(IMPORT_LIST, getImportListText());
+    replaceMap.put(COMP_PACKAGE, componentPackage);
+    replaceMap.put(COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
+    replaceMap.put(NAME_CC, getBeautifulName(rule.getName()));
+    replaceMap.put(LANG, languageName);
+    replaceMap.put(DECL_TAGS, getTagsDeclaration(rule));
+    replaceMap.put(GEN_SUBTREES, getSubtreesMethodsText(rule));
+    replaceMap.put(GET_NEW_ELEM, getGetNewElementText(rule));
+    replaceMap.put(PREPARE_SUBTREES, getPrepareSubtreesText(rule));
+    replaceMap.put(UPDATE_SUBTREES, getUpdateSubtreesText(rule));
+    replaceMap.put(GET_TAGS, getGetTagsText(rule));
+    replaceMap.put(IS_TEMPL_SUIT, getIsTemplateSuitableText(rule));
+    replaceMap.put(GET_TEMPLATE, getGetTemplateText(rule));
 
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -243,39 +281,39 @@ public class PrinterGenerator {
   private String getListComponentText(BnfRule rule) {
     String templateContent = readTemplate("ListComponent.txt");
     Map<String, String> replaceMap = new HashMap<String, String>();
-    replaceMap.put("@LANG_PACKAGE@", printerPackage);
-    //replaceMap.put("@FACTORY_CLASS@", elementFactoryPath);
-    replaceMap.put("@LIST_SEP@", ParserGeneratorUtil.getAttribute(rule, KnownAttribute.LIST_SEP));
-    replaceMap.put("@LANG@", languageName);
-    replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
-    replaceMap.put("@COMP_PACKAGE@", componentPackage);
-    replaceMap.put("@NAME_CC@", getBeautifulName(rule.getName()));
-    replaceMap.put("@GET_NEW_ELEM@", getGetNewElementText(rule));
-    replaceMap.put("@IS_TEMPL_SUIT@", getIsTemplateSuitableText(rule));
+    replaceMap.put(LANG_PACKAGE, printerPackage);
+    //replaceMap.put(FACTORY_CLASS, elementFactoryPath);
+    replaceMap.put(LIST_SEP, ParserGeneratorUtil.getAttribute(rule, KnownAttribute.LIST_SEP));
+    replaceMap.put(LANG, languageName);
+    replaceMap.put(COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
+    replaceMap.put(COMP_PACKAGE, componentPackage);
+    replaceMap.put(NAME_CC, getBeautifulName(rule.getName()));
+    replaceMap.put(GET_NEW_ELEM, getGetNewElementText(rule));
+    replaceMap.put(IS_TEMPL_SUIT, getIsTemplateSuitableText(rule));
     Subtree subtree = getSubtreesForRule(rule).get(0);
-    replaceMap.put("@SUBTREE_GET@", subtree.getMethod);
+    replaceMap.put(SUBTREE_GET, subtree.getMethod);
 
     return replaceTemplates(templateContent, replaceMap);
   }
 
   private String getFileComponentText() {
     Map<String, String> replaceMap = new HashMap<String, String>();
-    replaceMap.put("@LANG_PACKAGE@", printerPackage);
-    replaceMap.put("@FILE_CLASS@", fileClass);
-    //replaceMap.put("@FILE_CLASS_NAME@", StringUtil.getShortName(fileClass));
-    replaceMap.put("@LANG@", languageName);
+    replaceMap.put(LANG_PACKAGE, printerPackage);
+    replaceMap.put(FILE_CLASS, fileClass);
+    //replaceMap.put(FILE_CLASS_NAME, StringUtil.getShortName(fileClass));
+    replaceMap.put(LANG, languageName);
     String componentClass = StringUtil.getShortName(fileClass);
-    replaceMap.put("@COMP_CLASS@", componentClass);
+    replaceMap.put(COMP_CLASS, componentClass);
     String componentName = StringUtil.trimStart(componentClass, psiClassPrefix);
-    replaceMap.put("@NAME_CC@", componentName);
+    replaceMap.put(NAME_CC, componentName);
     String getSubtreesText = "";
     String getSubtreesVariantsText = "";
     for (Subtree subtree : getSubtreesForRule(myGrammarRoot)) {
       getSubtreesText += getFileGetSubtreesText(subtree);
       getSubtreesVariantsText += getFileGetSubtreeVariantsText(subtree);
     }
-    replaceMap.put("@GET_SUBTREES@", getSubtreesText);
-    replaceMap.put("@GET_SUBTREES_VARIANTS@", getSubtreesVariantsText);
+    replaceMap.put(GET_SUBTREES, getSubtreesText);
+    replaceMap.put(GET_SUBTREES_VARIANTS, getSubtreesVariantsText);
 
     String templateContent = readTemplate("FileComponent.txt");
 
@@ -331,9 +369,9 @@ public class PrinterGenerator {
   private String getGetNewElementText(BnfRule rule) {
     String templateContent = readTemplate("ComponentGetNewElement.txt");
     final Map<String, String> replaceMap = ImmutableMap.of(
-      "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
-      "@ELEMENT_FACTORY@", elementFactoryClassName,
-      "@FROM_TEXT@", getBeautifulName(rule.getName())
+      COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
+      ELEMENT_FACTORY, elementFactoryClassName,
+      FROM_TEXT, getBeautifulName(rule.getName())
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -341,9 +379,9 @@ public class PrinterGenerator {
   private String getImportListText() {
     String templateContent = readTemplate("ImportList.txt");
     Map<String, String> replaceMap = ImmutableMap.of(
-      //"@FACTORY_CLASS@", elementFactoryPath,
-      "@LANG_PACKAGE@", printerPackage,
-      "@LANG@", languageName
+      //FACTORY_CLASS, elementFactoryPath,
+      LANG_PACKAGE, printerPackage,
+      LANG, languageName
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -357,9 +395,9 @@ public class PrinterGenerator {
       templateInsertPlace = "PsiTemplateGen";
     }
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
-      "@TEMPLATE@", templateInsertPlace,
-      "@TEMPL_SUIT@", "return true"
+      COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
+      TEMPLATE, templateInsertPlace,
+      TEMPL_SUIT, "return true"
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -368,8 +406,8 @@ public class PrinterGenerator {
     String templateContent = readTemplate("FileGetSubtreeVariants.txt");
 
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@NAME@", subtree.name,
-      "@NAME_CC@", StringUtil.capitalize(subtree.name)
+      NAME, subtree.name,
+      NAME_CC, StringUtil.capitalize(subtree.name)
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -377,10 +415,10 @@ public class PrinterGenerator {
   private String getFileGetSubtreesText(Subtree subtree) {
     String templateContent = readTemplate(!subtree.hasSeveralElements? "ComponentGetSubtree.txt" : "SEComponentGetSubtree.txt");
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@NAME_CC@", StringUtil.capitalize(subtree.name),
-      "@COMP_CLASS@", StringUtil.getShortName(fileClass),
-      "@NAME@", subtree.name,
-      "@SUBTREE_GET@", subtree.getMethod
+      NAME_CC, StringUtil.capitalize(subtree.name),
+      COMP_CLASS, StringUtil.getShortName(fileClass),
+      NAME, subtree.name,
+      SUBTREE_GET, subtree.getMethod
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -388,18 +426,18 @@ public class PrinterGenerator {
   private String getSubtreeMethodText(Subtree subtree, BnfRule rule, String fileName) {
     String templateContent = readTemplate(fileName);
     Map<String, String> replaceMap = new HashMap<String, String>();
-    replaceMap.put("@NAME_CC@", StringUtil.capitalize(subtree.name));
-    replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
-    replaceMap.put("@NAME@", subtree.name);
-    replaceMap.put("@SUBTREE_GET@", subtree.getMethod);
-    replaceMap.put("@NAME_CAP@", subtree.name.toUpperCase());
+    replaceMap.put(NAME_CC, StringUtil.capitalize(subtree.name));
+    replaceMap.put(COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
+    replaceMap.put(NAME, subtree.name);
+    replaceMap.put(SUBTREE_GET, subtree.getMethod);
+    replaceMap.put(NAME_CAP, subtree.name.toUpperCase());
     String everywhereSuit;
     if (subtree.isEverywhereSuitable) {
       everywhereSuit = "Box.getEverywhereSuitable()\n";
     } else {
       everywhereSuit = subtree.name + "!!.toBox()\n";
     }
-    replaceMap.put("@EVERYWHERE_SUIT@", everywhereSuit);
+    replaceMap.put(EVERYWHERE_SUIT, everywhereSuit);
     return replaceTemplates(templateContent, replaceMap);
   }
 
@@ -421,8 +459,8 @@ public class PrinterGenerator {
     String templateContent = readTemplate("ComponentUpdateSubtrees.txt");
     String updateSubtreeCode = "return variants";
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
-      "@UPDATE_SUBTREES@", updateSubtreeCode
+      COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
+      UPDATE_SUBTREES, updateSubtreeCode
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -434,8 +472,8 @@ public class PrinterGenerator {
       prepSubtreesCode += "prepare" + StringUtil.capitalize(subtree.name) + "Variants(p, variants, context)\n";
     }
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
-      "@PREP_SUBTREES@", prepSubtreesCode
+      COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
+      PREP_SUBTREES, prepSubtreesCode
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -452,8 +490,8 @@ public class PrinterGenerator {
       }
     }
     Map<String, String> replaceMap = new HashMap<String, String>();
-    replaceMap.put("@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
-    replaceMap.put("@GET_TAGS@", getTagsCode);
+    replaceMap.put(COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix));
+    replaceMap.put(GET_TAGS, getTagsCode);
     String templateContent = readTemplate("ComponentGetTags.txt");
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -473,8 +511,8 @@ public class PrinterGenerator {
     }
 
     Map<String, String> replaceMap = ImmutableMap.of(
-      "@COMP_CLASS@", ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
-      "@ADD_SUBTREES@", subtreesAddCode
+      COMP_CLASS, ParserGeneratorUtil.getRulePsiClassName(rule, psiClassPrefix),
+      ADD_SUBTREES, subtreesAddCode
     );
     return replaceTemplates(templateContent, replaceMap);
   }
@@ -528,23 +566,6 @@ public class PrinterGenerator {
           break;
       }
     }
-    /*BnfRule topSuperRule = ParserGeneratorUtil.getTopSuperRule(myFile, rule);
-    if (topSuperRule != null && ParserGeneratorUtil.Rule.isFake(topSuperRule)) {
-      for (RuleMethodsHelper.MethodInfo methodInfo : myRuleMethodsHelper.getFor(topSuperRule)) {
-        if (methodInfo.type != 3) continue;
-        Subtree subtree = genType3(rule, methodInfo);
-        if (subtree == null) continue;
-        boolean containsSubtree = false;
-        for (Subtree subtree1 : subtrees) {
-          if (subtree.name == subtree1.name) {
-            containsSubtree = true;
-            break;
-          }
-        }
-        if (containsSubtree) continue;
-        subtrees.add(subtree);
-      }
-    }*/
     return subtrees;
   }
 
@@ -559,15 +580,12 @@ public class PrinterGenerator {
       getMethod += "List";
     }
     boolean isRequired = cardinality == RuleGraphHelper.Cardinality.REQUIRED;
-    boolean isEverywhereSuitable = true;  // TODO: isEverywhereSuitable
-    //boolean hasSeveralElements = false;  // TODO: hasSeveralElements
+    boolean isEverywhereSuitable = true;
 
-    return new Subtree(subtreeName, getMethod, isRequired, isEverywhereSuitable, many);//hasSeveralElements);
+    return new Subtree(subtreeName, getMethod, isRequired, isEverywhereSuitable, many);
   }
 
-  //private List<Subtree>
   private Subtree genType3(BnfRule startRule, RuleMethodsHelper.MethodInfo methodInfo) {
-    //List<Subtree> subtrees = new ArrayList<Subtree>();
     BnfRule targetRule = startRule;
     RuleGraphHelper.Cardinality cardinality = RuleGraphHelper.Cardinality.REQUIRED;
     String context = "";
@@ -617,8 +635,8 @@ public class PrinterGenerator {
     String subtreeName = StringUtil.decapitalize(getBeautifulName(methodInfo.name));
     String subtreeGet = ParserGeneratorUtil.toIdentifier(methodInfo.name, "");
     boolean isRequired = !cardinality.many() && cardinality == RuleGraphHelper.Cardinality.REQUIRED && !totalNullable;
-    boolean hasSeveralElements = false;  // TODO: hasSeveralElements
-    boolean isEverywhereSuitable = true; // TODO: isEverywhereSuitable
+    boolean hasSeveralElements = false;
+    boolean isEverywhereSuitable = true;
     return new Subtree(subtreeName, StringUtil.capitalize(subtreeGet), isRequired, isEverywhereSuitable, hasSeveralElements,
                        ParserGeneratorUtil.toIdentifier(targetRule.getName(), ""));
     }
